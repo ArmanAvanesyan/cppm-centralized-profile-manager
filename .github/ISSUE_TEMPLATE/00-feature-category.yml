@@ -4,13 +4,6 @@ title: "[FEATURE CATEGORY] - "
 labels:
   - "feature-category"
 body:
-  - type: input
-    id: category_title
-    attributes:
-      label: "Title"
-      placeholder: "e.g., Centralized Data Management"
-    validations:
-      required: true
   - type: textarea
     id: category_description
     attributes:
