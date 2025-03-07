@@ -22,98 +22,55 @@ jobs:
           LABELS=$(jq -r '.issue.labels[].name' "$GITHUB_EVENT_PATH")
           echo "Labels: $LABELS"
           TYPE="none"
-          case "$LABELS" in
-            *UseCase*) TYPE="UseCase";;
-            *FR*) TYPE="FR";;
-             *NFR*) TYPE="NFR";;
-             *Constraint*) TYPE="Constraint";;
-            esac
-            echo "Detected Type: $TYPE"
-            echo "::set-output name=item_type::$TYPE"
+
+          if echo "$LABELS" | grep -qi 'UseCase'; then TYPE="UseCase"; fi
+          if echo "$LABELS" | grep -qi 'FR'; then TYPE="FR"; fi
+          if echo "$LABELS" | grep -qi 'NFR'; then TYPE="NFR"; fi
+          if echo "$LABELS" | grep -qi 'Constraint'; then TYPE="Constraint"; fi
+
+          echo "Detected Type: $TYPE"
+          echo "ITEM_TYPE=$TYPE" >> $GITHUB_ENV
 
       - name: Generate Next ID
         id: generate_id
         run: |
-          TYPE="${{ steps.parse_labels.outputs.item_type }}"
-          if [ "$TYPE" = "UseCase" ]; then
-            PREFIX="UC"
-            INDEX_FILE="docs/requirements/use-case-index.md"
-            LAST_ID=$(grep -oE "UC-[0-9]{3}" "$INDEX_FILE" | sed 's/UC-//' | sort -n | tail -1)
-          elif [ "$TYPE" = "FR" ]; then
-            PREFIX="FR"
-            INDEX_FILE="docs/requirements/fr-index.md"
-            LAST_ID=$(grep -oE "FR-[0-9]{3}" "$INDEX_FILE" | sed 's/FR-//' | sort -n | tail -1)
-          elif [ "$TYPE" = "Constraint" ]; then
-            PREFIX="C"
-            INDEX_FILE="docs/requirements/constraint-index.md"
-            LAST_ID=$(grep -oE "C-[0-9]{3}" "$INDEX_FILE" | sed 's/C-//' | sort -n | tail -1)
-          elif [ "$TYPE" = "NFR" ]; then
-            # For NFR, extract category from the issue body using jq and grep.
-            CATEGORY=$(jq -r '.issue.body' "$GITHUB_EVENT_PATH" | grep -oE '(Availability|Capacity|Compatibility|Documentation|Maintainability|Performance Efficiency|Portability|Recovery|Reliability|Scalability|Security|Usability)' | head -n 1)
-            if [ -z "$CATEGORY" ]; then
-              echo "No recognized NFR category found. Defaulting to 'General'"
-              CATEGORY="General"
-            fi
-            SHORTCAT=$(echo "$CATEGORY" | cut -c1-3 | tr '[:lower:]' '[:upper:]')
-            PREFIX="NFR-${SHORTCAT}"
-            INDEX_FILE="docs/requirements/nfr-index.md"
-            LAST_ID=$(grep -oE "NFR-${SHORTCAT}-[0-9]{3}" "$INDEX_FILE" | sed -E "s/^NFR-${SHORTCAT}-//" | sort -n | tail -1)
-          else
-            echo "No recognized label. Exiting."
-            exit 0
-          fi
+          TYPE="${{ env.ITEM_TYPE }}"
+          if [ "$TYPE" = "none" ]; then exit 0; fi
 
-          if [ -z "$LAST_ID" ]; then
-            NEXT=1
-          else
-            NEXT=$((LAST_ID+1))
-          fi
+          PREFIX="${TYPE:0:1}" # First letter (U for UseCase, F for FR, etc.)
+          INDEX_FILE="docs/requirements/${TYPE}-index.md"
+          LAST_ID=$(grep -oE "${PREFIX}-[0-9]{3}" "$INDEX_FILE" | sed "s/${PREFIX}-//" | sort -n | tail -1)
+
+          if [ -z "$LAST_ID" ]; then NEXT=1; else NEXT=$((LAST_ID+1)); fi
           ID=$(printf "%03d" $NEXT)
-          if [ "$TYPE" = "NFR" ]; then
-            NEW_IDENTIFIER="NFR-${SHORTCAT}-${ID}"
-          else
-            NEW_IDENTIFIER="${PREFIX}-${ID}"
-          fi
 
-          echo "NEW_IDENTIFIER=$NEW_IDENTIFIER" >> $GITHUB_OUTPUT
-          echo "INDEX_FILE=$INDEX_FILE" >> $GITHUB_OUTPUT
-          if [ "$TYPE" = "NFR" ]; then
-            echo "CATEGORY=$CATEGORY" >> $GITHUB_OUTPUT
-          fi
+          NEW_IDENTIFIER="${PREFIX}-${ID}"
+          echo "NEW_IDENTIFIER=$NEW_IDENTIFIER" >> $GITHUB_ENV
+          echo "INDEX_FILE=$INDEX_FILE" >> $GITHUB_ENV
 
       - name: Update Issue Title
-        if: steps.parse_labels.outputs.item_type != 'none'
+        if: env.ITEM_TYPE != 'none'
         uses: actions-ecosystem/action-update-issue@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           issue_number: ${{ github.event.issue.number }}
-          title: "[${{ steps.generate_id.outputs.NEW_IDENTIFIER }}] ${{ github.event.issue.title }}"
+          title: "[${{ env.NEW_IDENTIFIER }}] ${{ github.event.issue.title }}"
 
       - name: Append to Index
-        if: steps.parse_labels.outputs.item_type != 'none'
+        if: env.ITEM_TYPE != 'none'
         run: |
-          ITEM_TYPE="${{ steps.parse_labels.outputs.item_type }}"
-          NEW_ID="${{ steps.generate_id.outputs.NEW_IDENTIFIER }}"
-          INDEX_FILE="${{ steps.generate_id.outputs.INDEX_FILE }}"
+          INDEX_FILE="${{ env.INDEX_FILE }}"
+          NEW_ID="${{ env.NEW_IDENTIFIER }}"
           ISSUE_NUMBER="${{ github.event.issue.number }}"
           ISSUE_TITLE="${{ github.event.issue.title }}"
           CLEAN_TITLE=$(echo "$ISSUE_TITLE" | sed -E "s/^\[[A-Z]+-[0-9]+\]\s*//")
 
-          if [ "$ITEM_TYPE" = "UseCase" ]; then
-            echo "| $NEW_ID | $CLEAN_TITLE | [#$ISSUE_NUMBER](../../issues/$ISSUE_NUMBER) | (Priority?) | ..." >> "$INDEX_FILE"
-          elif [ "$ITEM_TYPE" = "FR" ]; then
-            echo "| $NEW_ID | $CLEAN_TITLE | [#$ISSUE_NUMBER](../../issues/$ISSUE_NUMBER) | (Priority?) | (Source?) |" >> "$INDEX_FILE"
-          elif [ "$ITEM_TYPE" = "Constraint" ]; then
-            echo "| $NEW_ID | $CLEAN_TITLE | [#$ISSUE_NUMBER](../../issues/$ISSUE_NUMBER) | (Rationale?) | (Impact?) |" >> "$INDEX_FILE"
-          elif [ "$ITEM_TYPE" = "NFR" ]; then
-            CATEGORY="${{ steps.generate_id.outputs.CATEGORY }}"
-            echo "| $NEW_ID | $CATEGORY | [#$ISSUE_NUMBER](../../issues/$ISSUE_NUMBER) | $CLEAN_TITLE |" >> "$INDEX_FILE"
-          fi
+          echo "| $NEW_ID | $CLEAN_TITLE | [#$ISSUE_NUMBER](../../issues/$ISSUE_NUMBER) |" >> "$INDEX_FILE"
 
           cat "$INDEX_FILE"
 
       - name: Commit and Push
-        if: steps.parse_labels.outputs.item_type != 'none'
+        if: env.ITEM_TYPE != 'none'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
