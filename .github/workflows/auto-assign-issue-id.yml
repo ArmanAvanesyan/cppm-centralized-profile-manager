@@ -19,21 +19,17 @@ jobs:
       - name: Determine Item Type
         id: parse_labels
         run: |
-          # Get all labels from the issue event payload
           LABELS=$(jq -r '.issue.labels[].name' "$GITHUB_EVENT_PATH")
           echo "Labels: $LABELS"
           TYPE="none"
-          if echo "$LABELS" | grep -qi 'UseCase'; then
-            TYPE="UseCase"
-          elif echo "$LABELS" | grep -qi 'FR'; then
-            TYPE="FR"
-          elif echo "$LABELS" | grep -qi 'NFR'; then
-            TYPE="NFR"
-          elif echo "$LABELS" | grep -qi 'Constraint'; then
-            TYPE="Constraint"
-          fi
-          echo "Detected Type: $TYPE"
-          echo "::set-output name=item_type::$TYPE"
+          case "$LABELS" in
+            *UseCase*) TYPE="UseCase";;
+            *FR*) TYPE="FR";;
+             *NFR*) TYPE="NFR";;
+             *Constraint*) TYPE="Constraint";;
+            esac
+            echo "Detected Type: $TYPE"
+            echo "::set-output name=item_type::$TYPE"
 
       - name: Generate Next ID
         id: generate_id
