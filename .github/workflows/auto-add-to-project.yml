@@ -202,7 +202,7 @@ jobs:
               console.error("❌ Error:", error);
             }
 
-      - name: Debug: List Issues in Project
+      - name: Debug List Issues in Project
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
