@@ -12,7 +12,18 @@ jobs:
     permissions:
       issues: write
     steps:
-      - name: Add triage label to issue
+      - name: Check if Issue Has Type Label
+        uses: actions/github-script@v7
+        id: check-labels
+        with:
+          script: |
+            const typeLabels = ["FR", "NFR", "feature", "use-case", "constraint"];
+            const labels = context.payload.issue.labels.map(label => label.name);
+            // If any type label exists, do nothing.
+            const hasTypeLabel = labels.some(label => typeLabels.includes(label));
+            return { hasTypeLabel };
+      - name: Add triage label if no type label found
+        if: steps.check-labels.outputs.hasTypeLabel == 'false'
         uses: actions/github-script@v7
         with:
           script: |
@@ -21,4 +32,4 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               labels: ["triage"]
-            })
+            });
