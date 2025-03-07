@@ -1,76 +1,81 @@
 name: "Feature"
-description: "Issue for a feature."
+description: "Create or update a feature for CPPM"
 title: "[FEATURE] - "
 labels:
-  - feature
-  - requirement
+  - "feature"
 body:
-  - type: markdown
+  - type: input
+    id: feature_title
     attributes:
-      value: |
-        # Feature: [Feature Title]
-        Provide a brief description of what this feature does.
-        - Include relevant context (e.g., user persona, pain point).
+      label: "Title"
+      placeholder: "Enter the feature title (e.g., Core Data Management)"
+    validations:
+      required: true
+  - type: dropdown
+    id: feature_category
+    attributes:
+      label: "Feature Category"
+      description: "Select the category this feature belongs to (e.g., Centralized Data Management, Export Engine, Security & Privacy, etc.)."
+      options:
+        - "Centralized Data Management"
+        - "Export Engine"
+        - "Security & Privacy"
+        - "Cloud Integration"
+        - "Platform Sync"
+    validations:
+      required: true
+  - type: dropdown
+    id: feature_priority
+    attributes:
+      label: "Priority"
+      description: "Select the priority for this feature."
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
   - type: textarea
     id: feature_description
     attributes:
-      label: "1. Description"
-      placeholder: "Describe the feature in detail..."
+      label: "Description"
+      placeholder: "Provide a brief description of what this feature does, including context (user persona, pain points, motivation, etc.)."
     validations:
       required: true
-
-  - type: markdown
-    attributes:
-      value: |
-        ## 2. Functional Requirements (FR)
-        List each FR as **FR‑X** with a clear “shall” statement.  
-        _Example:_  
-        - **FR‑1**: The system shall ...
-        - **FR‑2**: The system shall ...
   - type: textarea
-    id: functional_requirements
+    id: feature_functional_requirements
     attributes:
-      label: "Functional Requirements (FR)"
-      placeholder: "List all functional requirements here..."
+      label: "Functional Requirements / Use Cases"
+      placeholder: "List the linked use cases or functional requirements (e.g., UC-001: Create Profile, UC-002: Edit Profile)."
+    validations:
+      required: true
+  - type: textarea
+    id: feature_non_functional_requirements
+    attributes:
+      label: "Non‑Functional Requirements (NFRs)"
+      placeholder: "List the related NFRs (e.g., NFR-USAB-001, NFR-PERF-001)."
     validations:
       required: false
-
-  - type: markdown
-    attributes:
-      value: |
-        ## 3. Non‑Functional Requirements (NFR)
-        List each NFR focusing on aspects like performance, security, usability, etc.  
-        _Example:_  
-        - **NFR‑1 (Performance)**: The system should ...
-        - **NFR‑2 (Security)**: No plaintext ...
   - type: textarea
-    id: non_functional_requirements
-    attributes:
-      label: "Non‑Functional Requirements (NFR)"
-      placeholder: "List all non‑functional requirements here..."
-    validations:
-      required: false
-
-  - type: markdown
-    attributes:
-      value: |
-        ## 4. Constraints
-        Any limitations or conditions that must be honored.  
-        _Example:_  
-        - **C1**: Must run offline ...
-        - **C2**: Must comply with ...
-  - type: textarea
-    id: constraints
+    id: feature_constraints
     attributes:
       label: "Constraints"
-      placeholder: "List all constraints here..."
+      placeholder: "List any constraints (e.g., C-001: Must work offline, C-002: Format compliance)."
     validations:
       required: false
-
-  - type: markdown
+  - type: textarea
+    id: feature_related_artifacts
     attributes:
-      value: |
-        ## 5. Related Architecture or Models
-        - **Logical Models**: Link to logical ER diagrams, process flows.
-        - **Physical Models**: Link to final DB schema, C4 diagrams (if relevant).
-        - **ADRs**: Link to Architectural Decision Records if this feature required a specific design decision.
+      label: "Related Artifacts"
+      description: "Provide links to related process models, data models, and ADRs."
+      placeholder: |
+        Process Models:
+        - [Logical Process Model](docs/path-to-logical-process-model.md)
+        - [Physical Process Model](docs/path-to-physical-process-model.md)
+        
+        Data Models:
+        - [Conceptual Data Model](docs/path-to-conceptual-data-model.md)
+        - [Logical Data Model](docs/path-to-logical-data-model.md)
+        - [Physical Data Model](docs/path-to-physical-data-model.md)
+    validations:
+      required: false
