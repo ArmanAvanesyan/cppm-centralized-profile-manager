@@ -4,26 +4,11 @@ title: "[FEATURE] - "
 labels:
   - "feature"
 body:
-  - type: input
-    id: feature_title
+  - type: markdown
     attributes:
-      label: "Title"
-      placeholder: "Enter the feature title (e.g., Core Data Management)"
-    validations:
-      required: true
-  - type: dropdown
-    id: feature_category
-    attributes:
-      label: "Feature Category"
-      description: "Select the category this feature belongs to (e.g., Centralized Data Management, Export Engine, Security & Privacy, etc.)."
-      options:
-        - "Centralized Data Management"
-        - "Export Engine"
-        - "Security & Privacy"
-        - "Cloud Integration"
-        - "Platform Sync"
-    validations:
-      required: true
+      value: |
+        #<issue_number>
+        (Replace <issue_number> with a link to any related Feature Category or higher-level issue)
   - type: dropdown
     id: feature_priority
     attributes:
