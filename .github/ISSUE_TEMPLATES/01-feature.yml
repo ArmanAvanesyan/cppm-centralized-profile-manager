@@ -1,10 +1,9 @@
 name: "Feature"
-description: "Propose a new feature for the CPPM project."
+description: "Issue for a feature."
 title: "[FEATURE] - "
 labels:
   - feature
   - requirement
-assignees: []
 body:
   - type: markdown
     attributes:
@@ -75,9 +74,3 @@ body:
         - **Logical Models**: Link to logical ER diagrams, process flows.
         - **Physical Models**: Link to final DB schema, C4 diagrams (if relevant).
         - **ADRs**: Link to Architectural Decision Records if this feature required a specific design decision.
-  - type: markdown
-    attributes:
-      value: |
-        ## 6. PBIs / Tasks
-        If using an agile board, please list related GitHub issues or epics that will implement these requirements.
-        - Example: [#123 “Implement DB schema”](https://github.com/your-org/your-repo/issues/123)
