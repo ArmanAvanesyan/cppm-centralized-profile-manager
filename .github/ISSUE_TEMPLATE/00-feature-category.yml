@@ -11,7 +11,6 @@ body:
       placeholder: "Provide a brief description of what this category covers (user pain points, overarching goals, etc.)."
     validations:
       required: false
-
   - type: dropdown
     id: feature_status
     attributes:
