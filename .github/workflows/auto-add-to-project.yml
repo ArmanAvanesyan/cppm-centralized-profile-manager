@@ -4,6 +4,7 @@ on:
   issues:
     types:
       - opened
+      - edited
 
 jobs:
   add-to-project:
@@ -14,19 +15,18 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const projectId = "PVT_kwDOABCD12345";  // 🔹 Replace with your actual project ID
-            const typeFieldId = "PVTSSF_lAHOBXlNW84AzylezgpiP84";  // 🔹 Type Field ID
-            const statusFieldId = "PVTSSF_lAHOBXlNW84Azylezgphsmc"; // 🔹 Status Field ID
-            const priorityFieldId = "PVTSSF_lAHOBXlNW84AzylezgpiQJY"; // 🔹 Priority Field ID
+            const projectId = "PVT_kwHOBXlNW84Azyle";  
+            const typeFieldId = "PVTSSF_lAHOBXlNW84AzylezgpiP84"; 
+            const statusFieldId = "PVTSSF_lAHOBXlNW84Azylezgphsmc"; 
+            const priorityFieldId = "PVTSSF_lAHOBXlNW84AzylezgpiQJY"; 
 
             const issueNumber = context.payload.issue.number;
             const repoOwner = context.repo.owner;
             const repoName = context.repo.repo;
-            const issueLabels = context.payload.issue.labels.map(label => label.name);
+            const issueLabels = (context.payload.issue.labels || []).map(label => label.name);
 
-            // 🏷️ Map Labels to Project Types
             const typeMapping = {
-              "feature-category": "17dbd86c", // ✅ This is the only one that gets a status
+              "feature-category": "17dbd86c", 
               "feature": "0a5612da",
               "fr": "d4aafaf2",
               "nfr": "0f218c42",
@@ -41,7 +41,7 @@ jobs:
               "documentation-request": "1e44e8c4"
             };
 
-            let assignedTypeId = null;
+            let assignedTypeId = typeMapping["feature"];
             for (const label of issueLabels) {
               if (typeMapping[label.toLowerCase()]) {
                 assignedTypeId = typeMapping[label.toLowerCase()];
@@ -49,14 +49,12 @@ jobs:
               }
             }
 
-            // Default Type to "Feature" if no match found
-            if (!assignedTypeId) assignedTypeId = typeMapping["feature"];
+            console.log(`Issue Labels: ${issueLabels}`);
+            console.log(`Assigned Type: ${assignedTypeId}`);
 
-            // Assign "NEXT" as default status only for Feature Category
-            const defaultStatusId = "47fc9ee4";  // 🔹 ID for "NEXT" status
+            const defaultStatusId = "47fc9ee4";  
             let shouldAssignStatus = assignedTypeId === typeMapping["feature-category"];
 
-            // 🏷️ Map Labels to Priority (if available)
             const priorityMapping = {
               "high": "028ffd60",
               "medium": "6aa22d96",
@@ -71,78 +69,70 @@ jobs:
               }
             }
 
-            // 🏗️ 1️⃣ Add Issue to Project
-            const addItemMutation = `
-              mutation {
-                addProjectV2ItemById(input: {projectId: "${projectId}", contentId: "${context.payload.issue.node_id}"}) {
-                  item {
-                    id
-                  }
-                }
-              }
-            `;
-
-            const addItemResponse = await github.graphql(addItemMutation);
-            const itemId = addItemResponse.addProjectV2ItemById.item.id;
-
-            console.log(`✅ Issue added to project with ID: ${itemId}`);
-
-            // 🏗️ 2️⃣ Set Type Field
-            const setTypeMutation = `
-              mutation {
-                updateProjectV2ItemFieldValue(input: {
-                  projectId: "${projectId}",
-                  itemId: "${itemId}",
-                  fieldId: "${typeFieldId}",
-                  value: { singleSelectOptionId: "${assignedTypeId}" }
-                }) {
-                  projectV2Item {
-                    id
-                  }
-                }
-              }
-            `;
-
-            await github.graphql(setTypeMutation);
-            console.log(`✅ Assigned Type: ${assignedTypeId}`);
-
-            // 🏗️ 3️⃣ Set Default Status only if Feature Category
-            if (shouldAssignStatus) {
-              const setStatusMutation = `
+            try {
+              const addItemMutation = `
                 mutation {
-                  updateProjectV2ItemFieldValue(input: {
-                    projectId: "${projectId}",
-                    itemId: "${itemId}",
-                    fieldId: "${statusFieldId}",
-                    value: { singleSelectOptionId: "${defaultStatusId}" }
-                  }) {
-                    projectV2Item {
-                      id
-                    }
+                  addProjectV2ItemById(input: {projectId: "${projectId}", contentId: "${context.payload.issue.node_id}"}) {
+                    item { id }
                   }
                 }
               `;
 
-              await github.graphql(setStatusMutation);
-              console.log(`✅ Assigned Default Status: NEXT`);
-            }
+              const addItemResponse = await github.graphql(addItemMutation);
+              const itemId = addItemResponse.addProjectV2ItemById.item.id;
+              console.log(`✅ Issue added to project: ${itemId}`);
 
-            // 🏗️ 4️⃣ Set Priority (if found)
-            if (assignedPriorityId) {
-              const setPriorityMutation = `
+              const setTypeMutation = `
                 mutation {
                   updateProjectV2ItemFieldValue(input: {
                     projectId: "${projectId}",
                     itemId: "${itemId}",
-                    fieldId: "${priorityFieldId}",
-                    value: { singleSelectOptionId: "${assignedPriorityId}" }
+                    fieldId: "${typeFieldId}",
+                    value: { singleSelectOptionId: "${assignedTypeId}" }
                   }) {
-                    projectV2Item {
-                      id
-                    }
+                    projectV2Item { id }
                   }
                 }
               `;
-              await github.graphql(setPriorityMutation);
-              console.log(`✅ Assigned Priority: ${assignedPriorityId}`);
+
+              await github.graphql(setTypeMutation);
+              console.log(`✅ Assigned Type: ${assignedTypeId}`);
+
+              if (shouldAssignStatus) {
+                const setStatusMutation = `
+                  mutation {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: "${projectId}",
+                      itemId: "${itemId}",
+                      fieldId: "${statusFieldId}",
+                      value: { singleSelectOptionId: "${defaultStatusId}" }
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `;
+
+                await github.graphql(setStatusMutation);
+                console.log(`✅ Assigned Default Status: NEXT`);
+              }
+
+              if (assignedPriorityId) {
+                const setPriorityMutation = `
+                  mutation {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: "${projectId}",
+                      itemId: "${itemId}",
+                      fieldId: "${priorityFieldId}",
+                      value: { singleSelectOptionId: "${assignedPriorityId}" }
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `;
+                await github.graphql(setPriorityMutation);
+                console.log(`✅ Assigned Priority: ${assignedPriorityId}`);
+              }
+
+            } catch (error) {
+              console.error("❌ Error:", error);
             }
