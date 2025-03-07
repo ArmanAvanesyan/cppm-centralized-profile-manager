@@ -1,0 +1,83 @@
+name: "Feature"
+description: "Propose a new feature for the CPPM project."
+title: "[FEATURE] - "
+labels:
+  - feature
+  - requirement
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Feature: [Feature Title]
+        Provide a brief description of what this feature does.
+        - Include relevant context (e.g., user persona, pain point).
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: "1. Description"
+      placeholder: "Describe the feature in detail..."
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 2. Functional Requirements (FR)
+        List each FR as **FR‑X** with a clear “shall” statement.  
+        _Example:_  
+        - **FR‑1**: The system shall ...
+        - **FR‑2**: The system shall ...
+  - type: textarea
+    id: functional_requirements
+    attributes:
+      label: "Functional Requirements (FR)"
+      placeholder: "List all functional requirements here..."
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 3. Non‑Functional Requirements (NFR)
+        List each NFR focusing on aspects like performance, security, usability, etc.  
+        _Example:_  
+        - **NFR‑1 (Performance)**: The system should ...
+        - **NFR‑2 (Security)**: No plaintext ...
+  - type: textarea
+    id: non_functional_requirements
+    attributes:
+      label: "Non‑Functional Requirements (NFR)"
+      placeholder: "List all non‑functional requirements here..."
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 4. Constraints
+        Any limitations or conditions that must be honored.  
+        _Example:_  
+        - **C1**: Must run offline ...
+        - **C2**: Must comply with ...
+  - type: textarea
+    id: constraints
+    attributes:
+      label: "Constraints"
+      placeholder: "List all constraints here..."
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 5. Related Architecture or Models
+        - **Logical Models**: Link to logical ER diagrams, process flows.
+        - **Physical Models**: Link to final DB schema, C4 diagrams (if relevant).
+        - **ADRs**: Link to Architectural Decision Records if this feature required a specific design decision.
+  - type: markdown
+    attributes:
+      value: |
+        ## 6. PBIs / Tasks
+        If using an agile board, please list related GitHub issues or epics that will implement these requirements.
+        - Example: [#123 “Implement DB schema”](https://github.com/your-org/your-repo/issues/123)
