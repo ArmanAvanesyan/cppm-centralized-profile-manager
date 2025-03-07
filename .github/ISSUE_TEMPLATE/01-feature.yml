@@ -33,7 +33,7 @@ body:
       label: "Functional Requirements (FR)"
       placeholder: "List all functional requirements here..."
     validations:
-      required: true
+      required: false
 
   - type: markdown
     attributes:
@@ -49,7 +49,7 @@ body:
       label: "Non‑Functional Requirements (NFR)"
       placeholder: "List all non‑functional requirements here..."
     validations:
-      required: true
+      required: false
 
   - type: markdown
     attributes:
