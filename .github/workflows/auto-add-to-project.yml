@@ -97,8 +97,17 @@ jobs:
             console.log(`🔹 Assigning Type: ${assignedTypeId}`);
 
             // Default Status for Feature Categories
-            const defaultStatusId = "47fc9ee4"; // NEXT
-            let shouldAssignStatus = assignedTypeId === typeMapping["feature-category"];
+            const statusMapping = {
+              "LATER": "f75ad846",
+              "NEXT": "47fc9ee4",
+              "NOW": "c8fab3fb",
+              "DONE": "98236657"
+            };
+
+            let assignedStatusId = null;
+            if (assignedTypeId === typeMapping["feature-category"]) {
+              assignedStatusId = statusMapping["NEXT"];  // Default Feature Categories to NEXT
+            }
 
             // Assign Priority if Found
             const priorityMapping = {
@@ -140,7 +149,7 @@ jobs:
               console.log("✅ Type assigned successfully.");
 
               // Assign Status if it's a Feature Category
-              if (shouldAssignStatus) {
+              if (assignedStatusId) {
                 const setStatusMutation = `
                   mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
                     updateProjectV2ItemFieldValue(input: {
@@ -158,10 +167,10 @@ jobs:
                   projectId: projectId,
                   itemId: issueNodeId,
                   fieldId: statusFieldId,
-                  value: defaultStatusId
+                  value: assignedStatusId
                 });
 
-                console.log("✅ Assigned Default Status: NEXT");
+                console.log(`✅ Assigned Default Status: ${assignedStatusId}`);
               }
 
               // Assign Priority if Found
@@ -202,7 +211,7 @@ jobs:
             query {
               node(id: "PVT_kwHOBXlNW84Azyle") {
                 ... on ProjectV2 {
-                  items(first: 10) {
+                  items(first: 20) {
                     nodes { id content { ... on Issue { title number } } }
                   }
                 }
