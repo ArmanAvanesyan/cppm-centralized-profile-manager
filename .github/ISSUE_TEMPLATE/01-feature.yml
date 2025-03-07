@@ -4,11 +4,14 @@ title: "[FEATURE] - "
 labels:
   - "feature"
 body:
-  - type: markdown
+  - type: input
+    id: parent_feature_category
     attributes:
-      value: |
-        #<issue_number>
-        (Replace <issue_number> with a link to any related Feature Category or higher-level issue)
+      label: "Parent Issue"
+      description:  "Replace <issue_number> with a link to any related Feature Category or higher-level issue"
+      placeholder:  "#<issue_number>"
+    validations:
+      required: true
   - type: dropdown
     id: feature_priority
     attributes:
