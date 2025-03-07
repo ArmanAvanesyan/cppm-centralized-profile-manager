@@ -10,48 +10,201 @@ jobs:
   add-to-project:
     runs-on: ubuntu-latest
     steps:
-      - name: Get Project ID
-        id: get_project_id
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Debug: Log Inputs
         run: |
-          PROJECT_ID=$(gh api graphql -f query='
-            query {
-              repository(owner: "${{ github.repository_owner }}", name: "${{ github.event.repository.name }}") {
-                projectsV2(first: 5) {
-                  nodes { id, title }
-                }
-              }
-            }' | jq -r '.data.repository.projectsV2.nodes[0].id')
-          echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
-          echo "✅ Fetched Project ID: $PROJECT_ID"
+          echo "🔹 Repository: ${{ github.repository }}"
+          echo "🔹 Issue Number: ${{ github.event.issue.number }}"
+          echo "🔹 Issue Node ID: ${{ github.event.issue.node_id }}"
 
       - name: Add Issue to GitHub Project
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const projectId = process.env.PROJECT_ID;  
+            const projectId = "PVT_kwHOBXlNW84Azyle"; 
             const issueNodeId = context.payload.issue.node_id;
 
-            if (!projectId || !issueNodeId) {
-              console.error("🚨 Missing Project ID or Issue Node ID");
+            if (!issueNodeId) {
+              console.error("🚨 Issue Node ID is missing.");
               return;
             }
 
-            console.log(`🔹 Adding issue ${context.payload.issue.number} to project...`);
+            console.log(`🔹 Adding issue #${context.payload.issue.number} to project ${projectId}...`);
 
             const mutation = `
-              mutation {
-                addProjectV2ItemById(input: { projectId: "${projectId}", contentId: "${issueNodeId}" }) {
+              mutation($projectId: ID!, $contentId: ID!) {
+                addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
                   item { id }
                 }
               }
             `;
 
             try {
-              const response = await github.graphql(mutation);
+              const response = await github.graphql(mutation, {
+                projectId: projectId,
+                contentId: issueNodeId
+              });
+
               console.log("✅ Issue successfully added:", response);
             } catch (error) {
               console.error("❌ Failed to add issue:", error);
             }
+
+      - name: Assign Type and Status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const projectId = "PVT_kwHOBXlNW84Azyle";
+            const typeFieldId = "PVTSSF_lAHOBXlNW84AzylezgpiP84"; 
+            const statusFieldId = "PVTSSF_lAHOBXlNW84Azylezgphsmc";
+            const priorityFieldId = "PVTSSF_lAHOBXlNW84AzylezgpiQJY"; 
+
+            const issueLabels = (context.payload.issue.labels || []).map(label => label.name.toLowerCase());
+            const issueNodeId = context.payload.issue.node_id;
+
+            if (!issueNodeId) {
+              console.error("🚨 Issue Node ID is missing.");
+              return;
+            }
+
+            // Mapping Labels to Types
+            const typeMapping = {
+              "feature-category": "17dbd86c", 
+              "feature": "0a5612da",
+              "fr": "d4aafaf2",
+              "nfr": "0f218c42",
+              "use-case": "febf45b8",
+              "constraint": "29d3a189",
+              "bug": "2c6e6b3c",
+              "enhancement": "f900c906",
+              "feature-request": "762ab649",
+              "bug-report": "b777d4d9",
+              "feedback": "06b09923",
+              "question": "3e7bd0aa",
+              "documentation-request": "1e44e8c4"
+            };
+
+            let assignedTypeId = typeMapping["feature"];
+
+            for (const label of issueLabels) {
+              if (typeMapping[label]) {
+                assignedTypeId = typeMapping[label];
+                break;
+              }
+            }
+
+            console.log(`🔹 Assigning Type: ${assignedTypeId}`);
+
+            // Default Status for Feature Categories
+            const defaultStatusId = "47fc9ee4"; // NEXT
+            let shouldAssignStatus = assignedTypeId === typeMapping["feature-category"];
+
+            // Assign Priority if Found
+            const priorityMapping = {
+              "high": "028ffd60",
+              "medium": "6aa22d96",
+              "low": "518ab08f"
+            };
+
+            let assignedPriorityId = null;
+            for (const label of issueLabels) {
+              if (priorityMapping[label]) {
+                assignedPriorityId = priorityMapping[label];
+                break;
+              }
+            }
+
+            try {
+              // Assign Type
+              const setTypeMutation = `
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId,
+                    itemId: $itemId,
+                    fieldId: $fieldId,
+                    value: { singleSelectOptionId: $value }
+                  }) {
+                    projectV2Item { id }
+                  }
+                }
+              `;
+
+              await github.graphql(setTypeMutation, {
+                projectId: projectId,
+                itemId: issueNodeId,
+                fieldId: typeFieldId,
+                value: assignedTypeId
+              });
+
+              console.log("✅ Type assigned successfully.");
+
+              // Assign Status if it's a Feature Category
+              if (shouldAssignStatus) {
+                const setStatusMutation = `
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId,
+                      itemId: $itemId,
+                      fieldId: $fieldId,
+                      value: { singleSelectOptionId: $value }
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `;
+
+                await github.graphql(setStatusMutation, {
+                  projectId: projectId,
+                  itemId: issueNodeId,
+                  fieldId: statusFieldId,
+                  value: defaultStatusId
+                });
+
+                console.log("✅ Assigned Default Status: NEXT");
+              }
+
+              // Assign Priority if Found
+              if (assignedPriorityId) {
+                const setPriorityMutation = `
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId,
+                      itemId: $itemId,
+                      fieldId: $fieldId,
+                      value: { singleSelectOptionId: $value }
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `;
+
+                await github.graphql(setPriorityMutation, {
+                  projectId: projectId,
+                  itemId: issueNodeId,
+                  fieldId: priorityFieldId,
+                  value: assignedPriorityId
+                });
+
+                console.log("✅ Assigned Priority:", assignedPriorityId);
+              }
+
+            } catch (error) {
+              console.error("❌ Error:", error);
+            }
+
+      - name: Debug: List Issues in Project
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 Fetching all issues in project..."
+          gh api graphql -f query='
+            query {
+              node(id: "PVT_kwHOBXlNW84Azyle") {
+                ... on ProjectV2 {
+                  items(first: 10) {
+                    nodes { id content { ... on Issue { title number } } }
+                  }
+                }
+              }
+            }'
