@@ -15,7 +15,7 @@ jobs:
   validate-branch-name:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Validate Branch Name
         uses: michmurphy/branch-name-lint-action@v1.6
