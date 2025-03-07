@@ -21,6 +21,5 @@ body:
         - "NEXT"
         - "NOW"
         - "DONE"
-      default: "LATER"
     validations:
       required: true
