@@ -1,0 +1,55 @@
+name: "Functional Requirement"
+description: "Create or update a Functional Requirement (FR)."
+title: "[FR]: "
+labels:
+  - "FR"
+assignees: []
+body:
+  - type: input
+    id: requirement_description
+    attributes:
+      label: "Requirement Description"
+      description: "A clear, specific statement of the requirement."
+      placeholder: "The system shall..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      description: "How important is this requirement?"
+      options:
+        - High
+        - Medium
+        - Low
+      default: Medium
+    validations:
+      required: false
+
+  - type: input
+    id: source
+    attributes:
+      label: "Source"
+      description: "Where does this requirement come from?"
+      placeholder: "Stakeholder X, standard Y, etc."
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "Acceptance Criteria"
+      description: "Conditions to validate this FR is met."
+      placeholder: "- When user does X, system does Y\n- Must handle Z"
+    validations:
+      required: false
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: "Dependencies"
+      description: "Related items (Use Cases, Constraints, other FRs)."
+      placeholder: "UC-001, #12, or C-002..."
+    validations:
+      required: false

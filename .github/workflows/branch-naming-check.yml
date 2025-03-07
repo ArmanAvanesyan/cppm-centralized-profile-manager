@@ -1,0 +1,26 @@
+name: "Branch Naming Check"
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - develop
+      - 'feature/*'
+      - 'bugfix/*'
+      - 'release/*'
+      - 'hotfix/*'
+      - 'documents/*'
+
+jobs:
+  validate-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Validate Branch Name
+        uses: michmurphy/branch-name-lint-action@v1.6
+        with:
+          # Updated pattern includes "documents" as an allowed branch type.
+          pattern: '^((main|develop)|(feature|bugfix|release|hotfix|documents)\/[a-z0-9-]+)$'
+          errorMessage: "Branch name must be one of: main, develop, or (feature|bugfix|release|hotfix|documents)/<lowercase-hyphenated>."
+          allowDeleteBranch: true

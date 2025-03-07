@@ -1,0 +1,115 @@
+name: "NFR: Non-Functional Requirement"
+description: "Create or update a Non-Functional Requirement (NFR)."
+title: "[NFR]: "
+labels:
+  - "requirement"
+  - "NFR"
+assignees: []
+body:
+  - type: dropdown
+    id: nfr_category
+    attributes:
+      label: "NFR Category"
+      description: "Select the primary quality attribute category."
+      options:
+        - Availability
+        - Capacity
+        - Compatibility
+        - Documentation
+        - Maintainability
+        - Performance Efficiency
+        - Portability
+        - Recovery
+        - Reliability
+        - Scalability
+        - Security
+        - Usability
+      default: Compatibility
+    validations:
+      required: true
+
+  - type: dropdown
+    id: nfr_subcategory
+    attributes:
+      label: "Subcategory"
+      description: "Select a subcategory if applicable."
+      options:
+        - "None/Not Applicable"
+        - "Compatibility: Co-existence"
+        - "Compatibility: Interoperability"
+        - "Maintainability: Analyzability"
+        - "Maintainability: Modularity"
+        - "Maintainability: Modifiability"
+        - "Maintainability: Reusability"
+        - "Performance Efficiency: Time Behavior (Response Time)"
+        - "Performance Efficiency: Time Behavior (Throughput Rates)"
+        - "Performance Efficiency: Resource Utilization"
+        - "Portability: Adaptability"
+        - "Reliability: Recoverability"
+        - "Reliability: Fault Tolerance"
+        - "Reliability: Maturity"
+        - "Security: Integrity"
+        - "Usability: Accessibility"
+        - "Usability: Error Protection"
+        - "Usability: Operability"
+      default: "None/Not Applicable"
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirement_description
+    attributes:
+      label: "Description"
+      description: "A brief description of the non-functional quality required."
+      placeholder: "Describe the NFR in a concise way..."
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "### Measurement\nProvide details on **Measure**, **Method**, **Success**, **Evidence** for this NFR."
+
+  - type: input
+    id: measure
+    attributes:
+      label: "Measure"
+      description: "What aspect will be measured?"
+      placeholder: "e.g., 95th percentile response time"
+    validations:
+      required: false
+
+  - type: input
+    id: method
+    attributes:
+      label: "Method"
+      description: "How will it be measured?"
+      placeholder: "e.g., JMeter load testing"
+    validations:
+      required: false
+
+  - type: input
+    id: success
+    attributes:
+      label: "Success"
+      description: "Threshold or target that indicates success?"
+      placeholder: "e.g., < 3 seconds for 95% of requests"
+    validations:
+      required: false
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: "Evidence"
+      description: "Data, tests, or references supporting feasibility."
+      placeholder: "Previous metrics, docs, POCs..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: "Dependencies"
+      description: "List any dependencies relevant to this requirement (other issues, constraints, external services)."
+      placeholder: "e.g., #123, #456"
+    validations:
+      required: false

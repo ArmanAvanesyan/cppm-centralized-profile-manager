@@ -1,0 +1,91 @@
+name: "Use Case"
+description: "Create or update a Use Case with preconditions, flows, etc."
+title: "[UseCase]: "
+labels:
+  - "UseCase"
+assignees: []
+body:
+  - type: input
+    id: title
+    attributes:
+      label: "Use Case Title"
+      description: "Short, verb+noun style. Example: 'Add Work Experience'"
+      placeholder: "Add Work Experience"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actors
+    attributes:
+      label: "Actors"
+      description: "List the primary/secondary actors."
+      placeholder: "User (Profile Owner), External Auth System..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: preconditions
+    attributes:
+      label: "Preconditions"
+      description: "Conditions that must be met before the use case begins."
+      placeholder: "User is logged in, data X is present..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: main_flow
+    attributes:
+      label: "Main Flow"
+      description: "Step-by-step of the main (happy) path."
+      placeholder: "1. User clicks button\n2. System shows form\n..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternative_flows
+    attributes:
+      label: "Alternative Flows"
+      description: "Steps for alternative scenarios or exceptions."
+      placeholder: "Validation errors, cancellations, etc."
+    validations:
+      required: false
+
+  - type: textarea
+    id: postconditions
+    attributes:
+      label: "Postconditions"
+      description: "Expected system state after the use case finishes."
+      placeholder: "Record is saved, confirmation shown, etc."
+    validations:
+      required: false
+
+  - type: input
+    id: triggers
+    attributes:
+      label: "Triggers"
+      description: "Event or action initiating the use case."
+      placeholder: "User clicks 'Add Experience'..."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      description: "How important is this use case?"
+      options:
+        - High
+        - Medium
+        - Low
+      default: Medium
+    validations:
+      required: false
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: "Dependencies"
+      description: "Related requirements, constraints, or system components."
+      placeholder: "e.g., FR-###, C-###, or external API"
+    validations:
+      required: false

@@ -1,0 +1,51 @@
+name: "Constraint"
+description: "Create or update a project Constraint (C-###)."
+title: "[Constraint]: "
+labels:
+  - "Constraint"
+assignees: []
+body:
+  - type: input
+    id: constraint_description
+    attributes:
+      label: "Constraint Description"
+      description: "Short statement of the limitation or condition."
+      placeholder: "Must run offline, must comply with X..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: "Rationale"
+      description: "Why does this constraint exist?"
+      placeholder: "Legal requirement, performance limit..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: "Scope"
+      description: "Where or to whom this constraint applies."
+      placeholder: "All modules storing data..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: "Impact"
+      description: "What does this constraint affect? Performance, design, etc."
+      placeholder: "e.g., might require local DB, changes to UI, etc."
+    validations:
+      required: false
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: "Dependencies"
+      description: "Any related constraints, FRs, use cases, or external systems."
+      placeholder: "FR-101, UC-003, external regulation..."
+    validations:
+      required: false

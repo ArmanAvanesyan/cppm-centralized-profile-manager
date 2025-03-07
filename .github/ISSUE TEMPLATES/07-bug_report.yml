@@ -1,0 +1,59 @@
+name: Bug report
+description: "Create a report to help us improve."
+title: "[BUG]: "
+labels:
+  - "bug"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping us improve!  
+        Please fill out the sections below with as much detail as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Bug Description"
+      description: "Describe the bug in clear, concise detail."
+      placeholder: |
+        Example:
+        - A clear and concise description of the issue
+        - Observed behavior vs. expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Steps to Reproduce"
+      description: "List the steps to reproduce the bug."
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment"
+      description: "Include any details about your environment."
+      placeholder: |
+        - OS: (e.g. Windows 10, macOS 12.3)
+        - Browser / Tool version
+        - Python / Node / Other frameworks
+        - Additional context
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs / Screenshots"
+      description: "Paste relevant logs here or upload screenshots that clarify the error."
+      placeholder: "Drag and drop images or logs..."
+    validations:
+      required: false
