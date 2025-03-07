@@ -10,7 +10,7 @@ jobs:
   add-to-project:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug: Log Inputs
+      - name: Debug Log Inputs
         run: |
           echo "🔹 Repository: ${{ github.repository }}"
           echo "🔹 Issue Number: ${{ github.event.issue.number }}"
