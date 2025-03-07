@@ -3,7 +3,6 @@ description: "Create or update a Functional Requirement (FR)."
 title: "[FR]: "
 labels:
   - "FR"
-assignees: []
 body:
   - type: input
     id: requirement_description
