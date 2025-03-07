@@ -19,32 +19,49 @@ jobs:
       - name: Determine Item Type
         id: parse_labels
         run: |
-          LABELS=$(jq -r '.issue.labels[].name' "$GITHUB_EVENT_PATH")
+          LABELS=$(jq -r '.issue.labels[].name' "$GITHUB_EVENT_PATH" | tr '[:upper:]' '[:lower:]')
           echo "Labels: $LABELS"
           TYPE="none"
 
-          if echo "$LABELS" | grep -qi 'UseCase'; then TYPE="UseCase"; fi
-          if echo "$LABELS" | grep -qi 'FR'; then TYPE="FR"; fi
-          if echo "$LABELS" | grep -qi 'NFR'; then TYPE="NFR"; fi
-          if echo "$LABELS" | grep -qi 'Constraint'; then TYPE="Constraint"; fi
+          if echo "$LABELS" | grep -qw "use-case"; then TYPE="UseCase"; fi
+          if echo "$LABELS" | grep -qw "fr"; then TYPE="FR"; fi
+          if echo "$LABELS" | grep -qw "nfr"; then TYPE="NFR"; fi
+          if echo "$LABELS" | grep -qw "constraint"; then TYPE="Constraint"; fi
 
           echo "Detected Type: $TYPE"
           echo "ITEM_TYPE=$TYPE" >> $GITHUB_ENV
 
+      - name: Stop if Issue Type is Not Relevant
+        if: env.ITEM_TYPE == 'none'
+        run: echo "❌ No relevant labels found. Skipping workflow."
+
       - name: Generate Next ID
         id: generate_id
+        if: env.ITEM_TYPE != 'none'
         run: |
           TYPE="${{ env.ITEM_TYPE }}"
-          if [ "$TYPE" = "none" ]; then exit 0; fi
+          PREFIX=""
+          INDEX_FILE=""
 
-          PREFIX="${TYPE:0:1}" # First letter (U for UseCase, F for FR, etc.)
-          INDEX_FILE="docs/requirements/${TYPE}-index.md"
+          case "$TYPE" in
+            "UseCase") PREFIX="UC"; INDEX_FILE="docs/requirements/use-case-index.md" ;;
+            "FR") PREFIX="FR"; INDEX_FILE="docs/requirements/fr-index.md" ;;
+            "Constraint") PREFIX="C"; INDEX_FILE="docs/requirements/constraint-index.md" ;;
+            "NFR") 
+              CATEGORY=$(jq -r '.issue.body' "$GITHUB_EVENT_PATH" | grep -oE '(Availability|Capacity|Compatibility|Documentation|Maintainability|Performance Efficiency|Portability|Recovery|Reliability|Scalability|Security|Usability)' | head -n 1)
+              CATEGORY="${CATEGORY:-General}"
+              SHORTCAT=$(echo "$CATEGORY" | cut -c1-3 | tr '[:lower:]' '[:upper:]')
+              PREFIX="NFR-${SHORTCAT}"
+              INDEX_FILE="docs/requirements/nfr-index.md"
+              echo "CATEGORY=$CATEGORY" >> $GITHUB_ENV
+            ;;
+          esac
+
           LAST_ID=$(grep -oE "${PREFIX}-[0-9]{3}" "$INDEX_FILE" | sed "s/${PREFIX}-//" | sort -n | tail -1)
-
-          if [ -z "$LAST_ID" ]; then NEXT=1; else NEXT=$((LAST_ID+1)); fi
+          NEXT=$((LAST_ID+1))
           ID=$(printf "%03d" $NEXT)
-
           NEW_IDENTIFIER="${PREFIX}-${ID}"
+
           echo "NEW_IDENTIFIER=$NEW_IDENTIFIER" >> $GITHUB_ENV
           echo "INDEX_FILE=$INDEX_FILE" >> $GITHUB_ENV
 
@@ -63,9 +80,14 @@ jobs:
           NEW_ID="${{ env.NEW_IDENTIFIER }}"
           ISSUE_NUMBER="${{ github.event.issue.number }}"
           ISSUE_TITLE="${{ github.event.issue.title }}"
-          CLEAN_TITLE=$(echo "$ISSUE_TITLE" | sed -E "s/^\[[A-Z]+-[0-9]+\]\s*//")
+          CLEAN_TITLE=$(echo "$ISSUE_TITLE" | sed -E "s/^\[[A-Z0-9-]+\]\s*//")
 
-          echo "| $NEW_ID | $CLEAN_TITLE | [#$ISSUE_NUMBER](../../issues/$ISSUE_NUMBER) |" >> "$INDEX_FILE"
+          if [[ "$TYPE" == "NFR" ]]; then
+            CATEGORY="${{ env.CATEGORY }}"
+            echo "| $NEW_ID | $CATEGORY | [#$ISSUE_NUMBER](../../issues/$ISSUE_NUMBER) | $CLEAN_TITLE |" >> "$INDEX_FILE"
+          else
+            echo "| $NEW_ID | $CLEAN_TITLE | [#$ISSUE_NUMBER](../../issues/$ISSUE_NUMBER) |" >> "$INDEX_FILE"
+          fi
 
           cat "$INDEX_FILE"
 
@@ -74,6 +96,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/requirements/*.md
+
+          git add "$INDEX_FILE"
+          if git diff --cached --exit-code; then
+            echo "✅ No changes detected. Skipping commit."
+            exit 0
+          fi
+
           git commit -m "Add $NEW_ID to $ITEM_TYPE index"
           git push origin HEAD:${{ github.ref }}
