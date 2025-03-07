@@ -11,10 +11,3 @@ body:
       placeholder: "Provide a brief description of what this category covers (user pain points, overarching goals, etc.)."
     validations:
       required: true
-  - type: markdown
-    attributes:
-      value: |
-        ## Features in this Category
-        Please list the features that belong to this category. You can add them as markdown links or a simple list:
-        - [Feature 1](link)
-        - [Feature 2](link)
