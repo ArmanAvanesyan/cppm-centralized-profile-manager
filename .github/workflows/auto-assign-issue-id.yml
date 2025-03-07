@@ -16,18 +16,19 @@ jobs:
         with:
           node-version: 16
 
+      - name: Install jq (if not available)
+        run: sudo apt-get install -y jq
+
       - name: Determine Item Type
         id: parse_labels
         run: |
           LABELS=$(jq -r '.issue.labels[].name' "$GITHUB_EVENT_PATH" | tr '[:upper:]' '[:lower:]')
           echo "Labels: $LABELS"
           TYPE="none"
-
           if echo "$LABELS" | grep -qw "use-case"; then TYPE="UseCase"; fi
           if echo "$LABELS" | grep -qw "fr"; then TYPE="FR"; fi
           if echo "$LABELS" | grep -qw "nfr"; then TYPE="NFR"; fi
           if echo "$LABELS" | grep -qw "constraint"; then TYPE="Constraint"; fi
-
           echo "Detected Type: $TYPE"
           echo "ITEM_TYPE=$TYPE" >> $GITHUB_ENV
 
@@ -61,17 +62,25 @@ jobs:
           NEXT=$((LAST_ID+1))
           ID=$(printf "%03d" $NEXT)
           NEW_IDENTIFIER="${PREFIX}-${ID}"
-
           echo "NEW_IDENTIFIER=$NEW_IDENTIFIER" >> $GITHUB_ENV
           echo "INDEX_FILE=$INDEX_FILE" >> $GITHUB_ENV
 
-      - name: Update Issue Title
+      - name: Update Issue Title (Replace Deprecated Action)
         if: env.ITEM_TYPE != 'none'
-        uses: actions-ecosystem/action-update-issue@v1
+        uses: actions/github-script@v7
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          issue_number: ${{ github.event.issue.number }}
-          title: "[${{ env.NEW_IDENTIFIER }}] ${{ github.event.issue.title }}"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = context.issue.number;
+            const newTitle = "[${{ env.NEW_IDENTIFIER }}] " + context.payload.issue.title;
+            console.log("Updating issue title to:", newTitle);
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              title: newTitle
+            });
 
       - name: Append to Index
         if: env.ITEM_TYPE != 'none'
@@ -88,7 +97,6 @@ jobs:
           else
             echo "| $NEW_ID | $CLEAN_TITLE | [#$ISSUE_NUMBER](../../issues/$ISSUE_NUMBER) |" >> "$INDEX_FILE"
           fi
-
           cat "$INDEX_FILE"
 
       - name: Commit and Push
@@ -96,9 +104,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add "$INDEX_FILE"
-          if git diff --cached --exit-code; then
+
+          if git diff --quiet; then
             echo "✅ No changes detected. Skipping commit."
             exit 0
           fi
