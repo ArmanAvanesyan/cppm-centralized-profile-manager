@@ -2,9 +2,7 @@ name: "Auto Add Issues to Project & Assign Type"
 
 on:
   issues:
-    types:
-      - opened
-      - edited
+    types: [opened, edited]
 
 jobs:
   add-to-project:
