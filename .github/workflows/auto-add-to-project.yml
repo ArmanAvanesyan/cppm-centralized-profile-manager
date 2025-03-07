@@ -10,6 +10,17 @@ jobs:
   add-to-project:
     runs-on: ubuntu-latest
     steps:
+      - name: Get Correct Project ID
+        id: get_project_id
+        run: |
+          PROJECT_ID=$(gh api graphql -f query='
+            query {
+              repository(owner: "${{ github.repository_owner }}", name: "${{ github.event.repository.name }}") {
+                projectV2(number: 1) { id }
+              }
+            }' | jq -r '.data.repository.projectV2.id')
+          echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV
+          
       - name: Add Issue to GitHub Project
         uses: actions/github-script@v7
         with:
