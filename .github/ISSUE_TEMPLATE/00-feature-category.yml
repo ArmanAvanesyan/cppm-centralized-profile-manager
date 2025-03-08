@@ -11,15 +11,3 @@ body:
       placeholder: "Provide a brief description of what this category covers (user pain points, overarching goals, etc.)."
     validations:
       required: false
-  - type: dropdown
-    id: feature_status
-    attributes:
-      label: "Status"
-      description: "Select the current status of this feature category."
-      options:
-        - "LATER"
-        - "NEXT"
-        - "NOW"
-        - "DONE"
-    validations:
-      required: true
