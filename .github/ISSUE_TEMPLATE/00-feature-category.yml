@@ -1,8 +1,8 @@
 name: "Feature Category"
 description: "Create a new feature category for CPPM"
 title: "[FEATURE CATEGORY] - "
-labels:
-  - "feature-category"
+labels: ["feature-category"]
+projects: ["ArmanAvanesyan/projects/11"]
 body:
   - type: textarea
     id: category_description
