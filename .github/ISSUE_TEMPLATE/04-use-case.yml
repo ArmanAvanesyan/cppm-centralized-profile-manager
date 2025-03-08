@@ -1,9 +1,8 @@
 name: "Use Case"
 description: "Create or update a Use Case with preconditions, flows, etc."
 title: "[UseCase]: "
-labels:
-  - "UseCase"
-assignees: []
+labels: ["requirement", "UseCase"]
+projects: ["ArmanAvanesyan/projects/11"]
 body:
   - type: input
     id: title
