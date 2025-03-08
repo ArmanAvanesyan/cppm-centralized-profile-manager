@@ -11,7 +11,7 @@ body:
       description:  "Replace <issue_number> with a link to any related Feature Category or higher-level issue"
       placeholder:  "#<issue_number>"
     validations:
-      required: true
+      required: false
   - type: textarea
     id: feature_description
     attributes:
@@ -25,7 +25,7 @@ body:
       label: "Functional Requirements / Use Cases"
       placeholder: "List the linked use cases or functional requirements (e.g., UC-001: Create Profile, UC-002: Edit Profile)."
     validations:
-      required: true
+      required: false
   - type: textarea
     id: feature_non_functional_requirements
     attributes:
