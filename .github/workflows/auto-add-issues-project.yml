@@ -1,4 +1,4 @@
-name: "Auto Add Issues to Project with Labels"
+name: "Auto Add Issues to Project & Assign Labels and Status"
 
 on:
   issues:
@@ -13,13 +13,15 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const projectId = "PVT_kwHOBXlNW84Azyle";
+            const projectId = "PVT_kwHOBXlNW84Azyle"; 
             const issueNodeId = context.payload.issue.node_id;
 
             if (!issueNodeId) {
-              console.error("Issue Node ID is missing.");
+              console.error("🚨 Issue Node ID is missing.");
               return;
             }
+
+            console.log(`🔹 Adding issue #${context.payload.issue.number} to project ${projectId}...`);
 
             const mutation = `
               mutation($projectId: ID!, $contentId: ID!) {
@@ -29,9 +31,40 @@ jobs:
               }
             `;
 
-            await github.graphql(mutation, {
-              projectId: projectId,
-              contentId: issueNodeId
-            });
+            try {
+              const response = await github.graphql(mutation, {
+                projectId: projectId,
+                contentId: issueNodeId
+              });
 
-            console.log("Issue successfully added to the project.");
+              console.log("✅ Issue successfully added:", response);
+            } catch (error) {
+              console.error("❌ Failed to add issue:", error);
+            }
+
+      - name: Ensure Labels
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueLabels = context.payload.issue.labels.map(label => label.name);
+            const issueNodeId = context.payload.issue.node_id;
+
+            if (!issueNodeId) {
+              console.error("Issue Node ID is missing.");
+              return;
+            }
+
+            // Ensure the labels are added to the project item
+            const addLabelsMutation = `
+              mutation($itemId: ID!, $labels: [String!]!) {
+                updateIssue(input: { id: $itemId, labelIds: $labels }) {
+                  issue { id }
+                }
+              }
+            `;
+
+            await github.graphql(addLabelsMutation, {
+              itemId: issueNodeId,
+              labels: issueLabels
+            });
