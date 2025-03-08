@@ -1,10 +1,8 @@
 name: "NFR: Non-Functional Requirement"
 description: "Create or update a Non-Functional Requirement (NFR)."
 title: "[NFR]: "
-labels:
-  - "requirement"
-  - "NFR"
-assignees: []
+labels: ["requirement", "NFR"]
+projects: ["ArmanAvanesyan/projects/11"]
 body:
   - type: dropdown
     id: nfr_category
