@@ -1,7 +1,7 @@
 name: "Functional Requirement"
 description: "Create or update a Functional Requirement (FR)."
 title: "[FR]: "
-labels: ["FR"]
+labels: ["requirement", "FR"]
 projects: ["ArmanAvanesyan/projects/11"]
 body:
   - type: input
