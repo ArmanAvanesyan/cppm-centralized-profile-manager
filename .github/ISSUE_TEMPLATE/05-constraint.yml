@@ -1,9 +1,8 @@
 name: "Constraint"
 description: "Create or update a project Constraint (C-###)."
 title: "[Constraint]: "
-labels:
-  - "Constraint"
-assignees: []
+labels: ["reqiuirement",  "Constraint"]
+projects: ["ArmanAvanesyan/projects/11"]
 body:
   - type: input
     id: constraint_description
