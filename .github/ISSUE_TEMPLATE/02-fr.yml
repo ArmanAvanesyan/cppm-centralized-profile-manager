@@ -1,8 +1,8 @@
 name: "Functional Requirement"
 description: "Create or update a Functional Requirement (FR)."
 title: "[FR]: "
-labels:
-  - "FR"
+labels: ["FR"]
+projects: ["ArmanAvanesyan/projects/11"]
 body:
   - type: input
     id: requirement_description
@@ -12,7 +12,6 @@ body:
       placeholder: "The system shall..."
     validations:
       required: true
-
   - type: dropdown
     id: priority
     attributes:
@@ -25,7 +24,6 @@ body:
       default: Medium
     validations:
       required: false
-
   - type: input
     id: source
     attributes:
@@ -34,7 +32,6 @@ body:
       placeholder: "Stakeholder X, standard Y, etc."
     validations:
       required: false
-
   - type: textarea
     id: acceptance_criteria
     attributes:
@@ -43,7 +40,6 @@ body:
       placeholder: "- When user does X, system does Y\n- Must handle Z"
     validations:
       required: false
-
   - type: textarea
     id: dependencies
     attributes:
