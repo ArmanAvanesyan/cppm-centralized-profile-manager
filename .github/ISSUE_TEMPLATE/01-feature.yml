@@ -12,17 +12,6 @@ body:
       placeholder:  "#<issue_number>"
     validations:
       required: true
-  - type: dropdown
-    id: feature_priority
-    attributes:
-      label: "Priority"
-      description: "Select the priority for this feature."
-      options:
-        - High
-        - Medium
-        - Low
-    validations:
-      required: true
   - type: textarea
     id: feature_description
     attributes:
