@@ -1,8 +1,8 @@
 name: "Feature"
 description: "Create or update a feature for CPPM"
 title: "[FEATURE] - "
-labels:
-  - "feature"
+labels: ["feature"]
+projects: ["ArmanAvanesyan/projects/11"]
 body:
   - type: input
     id: parent_feature_category
