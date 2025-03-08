@@ -29,7 +29,7 @@ jobs:
 
             console.log(`🔹 Adding issue #${context.payload.issue.number} to project ${projectId}...`);
 
-            const mutation = `
+             const mutation = `
               mutation($projectId: ID!, $contentId: ID!) {
                 addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
                   item { id }
