@@ -199,19 +199,3 @@ jobs:
             } catch (error) {
               console.error("❌ Error:", error);
             }
-
-      - name: Debug List Issues in Project
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "🔍 Fetching all issues in project..."
-          gh api graphql -f query='
-            query {
-              node(id: "PVT_kwHOBXlNW84Azyle") {
-                ... on ProjectV2 {
-                  items(first: 20) {
-                    nodes { id content { ... on Issue { title number } } }
-                  }
-                }
-              }
-            }'
