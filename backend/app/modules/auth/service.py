@@ -106,6 +106,8 @@ def google_login(db, id_token: str) -> tuple[str, str] | None:
         if not user:
             user = create_user(db, email)
         create_auth_provider(db, user.user_id, provider, sub)
+    if not user:
+        return None
     access, refresh = _create_tokens(user.user_id)
     refresh_hash = _hash_refresh_token(refresh)
     expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
@@ -138,6 +140,8 @@ def microsoft_login(db, access_token: str) -> tuple[str, str] | None:
         if not user:
             user = create_user(db, email)
         create_auth_provider(db, user.user_id, provider, provider_user_id)
+    if not user:
+        return None
     access, refresh = _create_tokens(user.user_id)
     refresh_hash = _hash_refresh_token(refresh)
     expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
@@ -170,6 +174,8 @@ def linkedin_login(db, access_token: str) -> tuple[str, str] | None:
         if not user:
             user = create_user(db, email)
         create_auth_provider(db, user.user_id, provider, sub)
+    if not user:
+        return None
     access, refresh = _create_tokens(user.user_id)
     refresh_hash = _hash_refresh_token(refresh)
     expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)

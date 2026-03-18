@@ -26,7 +26,7 @@ def _storage_redirect_uri() -> str:
 
 
 class DropboxClient(BaseStorageClient):
-    def get_auth_url(self, _db: Session, user_id: uuid.UUID) -> str:
+    def get_auth_url(self, db: Session, user_id: uuid.UUID) -> str:  # noqa: ARG002
         """Build Dropbox OAuth2 authorization URL via oauth layer."""
         return get_oauth_client("dropbox").get_authorization_url(
             redirect_uri=_storage_redirect_uri(),

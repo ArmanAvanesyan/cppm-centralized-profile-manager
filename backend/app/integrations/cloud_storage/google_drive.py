@@ -27,7 +27,7 @@ def _storage_redirect_uri() -> str:
 
 
 class GoogleDriveClient(BaseStorageClient):
-    def get_auth_url(self, _db: Session, user_id: uuid.UUID) -> str:
+    def get_auth_url(self, db: Session, user_id: uuid.UUID) -> str:  # noqa: ARG002
         """Build Google OAuth2 authorization URL via oauth layer. state carries user_id for callback."""
         return get_oauth_client("google").get_authorization_url(
             redirect_uri=_storage_redirect_uri(),

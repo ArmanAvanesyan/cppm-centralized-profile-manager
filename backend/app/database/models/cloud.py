@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -29,8 +30,8 @@ class UserCloudAccount(Base):
     external_account_id: Mapped[str | None] = mapped_column(String(255))
     access_token_encrypted: Mapped[str | None] = mapped_column(Text)
     refresh_token_encrypted: Mapped[str | None] = mapped_column(Text)
-    token_expires_at: Mapped[DateTime | None] = mapped_column(DateTime(timezone=True))
-    connected_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")
+    token_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    connected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default="now()")
 
 
 class StorageFolder(Base):
@@ -46,7 +47,7 @@ class StorageFolder(Base):
     )
     provider_folder_id: Mapped[str | None] = mapped_column(String(255))
     folder_path: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default="now()")
 
 
 class StorageFile(Base):
@@ -66,7 +67,7 @@ class StorageFile(Base):
     file_type: Mapped[str | None] = mapped_column(String(50))
     file_size: Mapped[int | None] = mapped_column(BigInteger)
     checksum: Mapped[str | None] = mapped_column(String(255))
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")
-    updated_at: Mapped[DateTime] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default="now()")
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default="now()", onupdate="now()"
     )
