@@ -1,7 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi import UploadFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, get_db
@@ -30,8 +29,8 @@ def linkedin_parse(
 ):
     try:
         iid = UUID(import_id)
-    except ValueError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid import_id")
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid import_id") from e
     job_id = start_parse(db, iid, current_user.user_id)
     if not job_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Import not found")

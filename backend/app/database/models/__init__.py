@@ -1,20 +1,20 @@
 # Import all models so Alembic can see Base.metadata
-from app.database.models.user import User
 from app.database.models.auth import AuthProvider, EmailOtp, Session
 from app.database.models.cloud import (
     CloudProvider,
-    UserCloudAccount,
-    StorageFolder,
     StorageFile,
+    StorageFolder,
+    UserCloudAccount,
 )
-from app.database.models.resume import (
-    ResumeUpload,
-    ResumeTextExtraction,
-    ResumeParsingResult,
-)
+from app.database.models.encryption import EncryptedToken, EncryptionKey
 from app.database.models.linkedin import LinkedInImport, LinkedInParsedData
 from app.database.models.profile_merge import ProfileMergeOperation
-from app.database.models.encryption import EncryptionKey, EncryptedToken
+from app.database.models.resume import (
+    ResumeParsingResult,
+    ResumeTextExtraction,
+    ResumeUpload,
+)
+from app.database.models.user import User
 
 __all__ = [
     "User",

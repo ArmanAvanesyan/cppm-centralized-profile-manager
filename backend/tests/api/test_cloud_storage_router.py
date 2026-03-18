@@ -35,7 +35,7 @@ def test_callback_invalid_provider(client):
 
 
 @patch("app.integrations.cloud_storage.google_drive.handle_callback")
-def test_callback_google_success(mock_callback, client, db_session):
+def test_callback_google_success(mock_callback, client, db_session):  # noqa: ARG001
     mock_callback.return_value = True
     r = client.get("/api/v1/storage/callback/google?code=test_code&state=00000000-0000-0000-0000-000000000001")
     assert r.status_code == 200

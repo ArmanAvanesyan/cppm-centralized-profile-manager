@@ -1,4 +1,5 @@
 """Dropbox OAuth + API v2: auth URL, callback (exchange via oauth layer, create CPPM folder + profile.json)."""
+import contextlib
 import json
 import uuid
 
@@ -24,7 +25,7 @@ def _storage_redirect_uri() -> str:
 
 
 class DropboxClient(BaseStorageClient):
-    def get_auth_url(self, db: Session, user_id: uuid.UUID) -> str:
+    def get_auth_url(self, _db: Session, user_id: uuid.UUID) -> str:
         """Build Dropbox OAuth2 authorization URL via oauth layer."""
         return get_oauth_client("dropbox").get_authorization_url(
             redirect_uri=_storage_redirect_uri(),
@@ -40,10 +41,8 @@ class DropboxClient(BaseStorageClient):
     ) -> bool:
         """Exchange code via oauth layer, upsert account, create CPPM folder and profile.json via Dropbox API v2."""
         if state and not user_id:
-            try:
+            with contextlib.suppress(ValueError):
                 user_id = uuid.UUID(state)
-            except ValueError:
-                pass
         if not user_id:
             return False
 
@@ -96,7 +95,7 @@ class DropboxClient(BaseStorageClient):
         except Exception:
             folder_id = cppm_path
 
-        try:
+        with contextlib.suppress(Exception):
             httpx.post(
                 "https://content.dropboxapi.com/2/files/upload",
                 headers={
@@ -106,8 +105,6 @@ class DropboxClient(BaseStorageClient):
                 },
                 content=b"{}",
             )
-        except Exception:
-            pass
 
         get_or_create_storage_folder(
             db,
@@ -119,7 +116,7 @@ class DropboxClient(BaseStorageClient):
 
 
 def list_folder_files(
-    db: Session, account: UserCloudAccount, folder_path: str
+    _db: Session, account: UserCloudAccount, folder_path: str
 ) -> list[dict]:
     """List files in a Dropbox folder by path (e.g. /CPPM). Returns list of dicts with id, name."""
     access = account.access_token_encrypted
@@ -139,7 +136,7 @@ def list_folder_files(
 
 
 def upload_file_content(
-    db: Session,
+    _db: Session,
     account: UserCloudAccount,
     folder_path: str,
     file_name: str,
@@ -167,7 +164,7 @@ def upload_file_content(
 
 
 def download_file_content(
-    db: Session, account: UserCloudAccount, file_path: str
+    _db: Session, account: UserCloudAccount, file_path: str
 ) -> bytes | None:
     """Download file content from Dropbox by path (e.g. /CPPM/profile.json)."""
     access = account.access_token_encrypted

@@ -2,20 +2,19 @@
 import os
 import uuid
 from collections.abc import Generator
+from datetime import UTC
 
+# Import models so Base.metadata has all tables
+import app.database.models  # noqa: F401
 import pytest
+from app.core.config import settings
+from app.core.dependencies import get_current_user_id, get_db
+from app.database.base import Base
+from app.main import app
 from fastapi.testclient import TestClient
 from jose import jwt
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
-
-from app.core.config import settings
-from app.core.dependencies import get_db, get_current_user, get_current_user_id
-from app.database.base import Base
-from app.main import app
-
-# Import models so Base.metadata has all tables
-import app.database.models  # noqa: F401
 
 # Use TEST_DATABASE_URL if set, else DATABASE_URL (PostgreSQL). Rollback per test for isolation.
 _TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", settings.DATABASE_URL)
@@ -61,7 +60,7 @@ def db_engine():
 
 
 @pytest.fixture
-def db_session(db_engine) -> Generator[Session, None, None]:
+def db_session(db_engine) -> Generator[Session]:
     """Provide a DB session that rolls back after each test."""
     connection = db_engine.connect()
     transaction = connection.begin()
@@ -76,7 +75,7 @@ def db_session(db_engine) -> Generator[Session, None, None]:
 def client(db_session: Session):
     """FastAPI TestClient with get_db overridden to use test session."""
 
-    def override_get_db() -> Generator[Session, None, None]:
+    def override_get_db() -> Generator[Session]:
         try:
             yield db_session
         finally:
@@ -98,11 +97,11 @@ def auth_user_id() -> uuid.UUID:
 
 def make_token(user_id: uuid.UUID) -> str:
     """Create a valid access token for the given user_id."""
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
     payload = {
         "sub": str(user_id),
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+        "exp": datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
     }
     return jwt.encode(
         payload,
@@ -129,9 +128,8 @@ def client_with_auth(db_session: Session, auth_user_id: uuid.UUID):
     TestClient with get_db and get_current_user_id overridden.
     Requires a User with auth_user_id to exist in db_session (caller must create it).
     """
-    from app.database.models import User
 
-    def override_get_db() -> Generator[Session, None, None]:
+    def override_get_db() -> Generator[Session]:
         try:
             yield db_session
         finally:

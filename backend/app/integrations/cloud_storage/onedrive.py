@@ -1,6 +1,7 @@
 """OneDrive OAuth + Microsoft Graph: auth URL, callback (exchange via oauth layer, create CPPM folder + profile.json)."""
+import contextlib
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import httpx
 from sqlalchemy.orm import Session
@@ -25,7 +26,7 @@ def _storage_redirect_uri() -> str:
 
 
 class OneDriveClient(BaseStorageClient):
-    def get_auth_url(self, db: Session, user_id: uuid.UUID) -> str:
+    def get_auth_url(self, _db: Session, user_id: uuid.UUID) -> str:
         """Build Microsoft OAuth2 authorization URL via oauth layer for OneDrive (Graph)."""
         return get_oauth_client("microsoft").get_authorization_url(
             redirect_uri=_storage_redirect_uri(),
@@ -42,10 +43,8 @@ class OneDriveClient(BaseStorageClient):
     ) -> bool:
         """Exchange code via oauth layer, upsert account, create CPPM folder and profile.json via Graph."""
         if state and not user_id:
-            try:
+            with contextlib.suppress(ValueError):
                 user_id = uuid.UUID(state)
-            except ValueError:
-                pass
         if not user_id:
             return False
 
@@ -100,14 +99,12 @@ class OneDriveClient(BaseStorageClient):
         except Exception:
             return True
 
-        try:
+        with contextlib.suppress(Exception):
             httpx.put(
                 f"https://graph.microsoft.com/v1.0/me/drive/root:/{CPPM_FOLDER_NAME}/{PROFILE_FILENAME}:/content",
                 headers=headers,
                 content=b"{}",
             )
-        except Exception:
-            pass
 
         get_or_create_storage_folder(
             db,
@@ -120,7 +117,7 @@ class OneDriveClient(BaseStorageClient):
 
 def get_valid_access_token(db: Session, account: UserCloudAccount) -> str | None:
     """Return a valid access token, refreshing via oauth layer if expired (60s buffer)."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if account.token_expires_at and account.token_expires_at > now + timedelta(seconds=60):
         return account.access_token_encrypted
     if not account.refresh_token_encrypted:

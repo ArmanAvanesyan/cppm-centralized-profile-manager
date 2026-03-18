@@ -17,7 +17,7 @@ class DropboxOAuthClient(BaseOAuthClient):
         self,
         redirect_uri: str,
         state: str,
-        scopes: list[str] | None = None,
+        scopes: list[str] | None = None,  # noqa: ARG002
     ) -> str:
         params = {
             "client_id": settings.DROPBOX_CLIENT_ID,

@@ -1,5 +1,5 @@
 """Google OAuth2: authorization URL, code exchange, and token refresh only."""
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urlencode
 
 import httpx
@@ -60,7 +60,7 @@ class GoogleOAuthClient(BaseOAuthClient):
         expires_in = tok.get("expires_in")
         expires_at = None
         if expires_in is not None:
-            expires_at = datetime.now(timezone.utc) + timedelta(seconds=int(expires_in))
+            expires_at = datetime.now(UTC) + timedelta(seconds=int(expires_in))
         return OAuthTokenResult(
             access_token=access,
             refresh_token=refresh,
@@ -88,7 +88,7 @@ class GoogleOAuthClient(BaseOAuthClient):
         expires_in = tok.get("expires_in")
         expires_at = None
         if expires_in is not None:
-            expires_at = datetime.now(timezone.utc) + timedelta(seconds=int(expires_in))
+            expires_at = datetime.now(UTC) + timedelta(seconds=int(expires_in))
         return OAuthTokenResult(
             access_token=access,
             refresh_token=tok.get("refresh_token") or refresh_token,

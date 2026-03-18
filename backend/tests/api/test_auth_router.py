@@ -1,6 +1,6 @@
 """API tests for auth router."""
 import hashlib
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 from app.core.config import settings
@@ -17,7 +17,7 @@ def test_signup(client):
 def test_verify_success(client, db_session):
     otp = "111222"
     otp_hash = hashlib.sha256((otp + settings.OTP_SECRET).encode()).hexdigest()
-    expires = datetime.now(timezone.utc) + timedelta(minutes=10)
+    expires = datetime.now(UTC) + timedelta(minutes=10)
     create_email_otp(db_session, "verify_ok@example.com", otp_hash, expires)
     r = client.post("/api/v1/auth/email/verify", json={"email": "verify_ok@example.com", "otp": otp})
     assert r.status_code == 200
@@ -34,12 +34,14 @@ def test_verify_invalid_otp(client):
     assert r.status_code == 400
 
 
-def test_google_login_success(client, db_session):
-    with patch("app.modules.auth.service.settings") as mock_settings:
-        with patch("app.modules.auth.service.google_id_token.verify_oauth2_token") as mock_verify:
-            mock_settings.GOOGLE_CLIENT_ID = "cid"
-            mock_verify.return_value = {"email": "g@example.com", "sub": "g-sub"}
-            r = client.post("/api/v1/auth/google", json={"id_token": "fake"})
+def test_google_login_success(client, db_session):  # noqa: ARG001
+    with (
+        patch("app.modules.auth.service.settings") as mock_settings,
+        patch("app.modules.auth.service.google_id_token.verify_oauth2_token") as mock_verify,
+    ):
+        mock_settings.GOOGLE_CLIENT_ID = "cid"
+        mock_verify.return_value = {"email": "g@example.com", "sub": "g-sub"}
+        r = client.post("/api/v1/auth/google", json={"id_token": "fake"})
     assert r.status_code == 200
     assert "access_token" in r.json()
 
@@ -66,12 +68,12 @@ def test_me(client_with_auth, db_session, auth_user_id):
 
 
 def test_refresh_success(client, db_session):
+    from app.modules.auth.repository import create_session
     from app.modules.auth.service import _hash_refresh_token
-    from app.modules.auth.repository import create_user, create_session
     user = create_user(db_session, "refresh_api@example.com")
     refresh_token = "secret_refresh_123"
     h = _hash_refresh_token(refresh_token)
-    expires = datetime.now(timezone.utc) + timedelta(days=7)
+    expires = datetime.now(UTC) + timedelta(days=7)
     create_session(db_session, user.user_id, h, expires)
     r = client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
     assert r.status_code == 200
@@ -84,12 +86,12 @@ def test_refresh_invalid(client):
 
 
 def test_logout(client, db_session):
+    from app.modules.auth.repository import create_session
     from app.modules.auth.service import _hash_refresh_token
-    from app.modules.auth.repository import create_user, create_session
     user = create_user(db_session, "logout_api@example.com")
     refresh_token = "logout_refresh"
     h = _hash_refresh_token(refresh_token)
-    expires = datetime.now(timezone.utc) + timedelta(days=7)
+    expires = datetime.now(UTC) + timedelta(days=7)
     create_session(db_session, user.user_id, h, expires)
     r = client.post("/api/v1/auth/logout", json={"refresh_token": refresh_token})
     assert r.status_code == 204

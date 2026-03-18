@@ -1,8 +1,6 @@
 """Integration tests for Google Drive cloud storage (HTTP mocked)."""
 from unittest.mock import Mock, patch
 
-import pytest
-
 from app.modules.auth.repository import create_user
 from app.modules.cloud_storage.repository import (
     create_user_cloud_account,

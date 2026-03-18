@@ -1,11 +1,6 @@
 """Unit tests for app.modules.cloud_storage.repository."""
-import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-import pytest
-from sqlalchemy.orm import Session
-
-from app.database.models import CloudProvider, UserCloudAccount
 from app.modules.auth.repository import create_user
 from app.modules.cloud_storage.repository import (
     create_user_cloud_account,
@@ -16,6 +11,7 @@ from app.modules.cloud_storage.repository import (
     list_accounts_by_user,
     update_user_cloud_account,
 )
+from sqlalchemy.orm import Session
 
 
 def test_get_cloud_provider_by_name(db_session: Session):
@@ -95,7 +91,7 @@ def test_update_user_cloud_account(db_session: Session):
         db_session,
         account.account_id,
         access_token_encrypted="encrypted_token",
-        token_expires_at=datetime.now(timezone.utc),
+        token_expires_at=datetime.now(UTC),
     )
     assert updated is not None
     db_session.refresh(account)

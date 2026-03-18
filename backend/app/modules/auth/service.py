@@ -1,10 +1,9 @@
 import hashlib
 import secrets
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import httpx
-
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
 from jose import jwt
@@ -22,9 +21,9 @@ from app.modules.auth.repository import (
     get_session_by_refresh_hash,
     get_user_by_email,
     get_user_by_id,
+    get_valid_otp,
     list_provider_names_by_user_id,
     mark_otp_used,
-    get_valid_otp,
 )
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -40,7 +39,7 @@ def _hash_refresh_token(token: str) -> str:
 
 def _create_tokens(user_id: uuid.UUID) -> tuple[str, str]:
     access = jwt.encode(
-        {"sub": str(user_id), "exp": datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)},
+        {"sub": str(user_id), "exp": datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)},
         settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM,
     )
@@ -52,7 +51,7 @@ def email_signup(db, email: str) -> None:
     """Create and store OTP; in production would send email."""
     otp = "".join(secrets.choice("0123456789") for _ in range(6))
     otp_hash = _hash_otp(otp)
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=settings.OTP_EXPIRE_MINUTES)
+    expires_at = datetime.now(UTC) + timedelta(minutes=settings.OTP_EXPIRE_MINUTES)
     create_email_otp(db, email, otp_hash, expires_at)
     # TODO: send email with otp
 
@@ -74,7 +73,7 @@ def email_verify(db, email: str, otp: str) -> tuple[str, str] | None:
             db.commit()
     access, refresh = _create_tokens(user.user_id)
     refresh_hash = _hash_refresh_token(refresh)
-    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     create_session(db, user.user_id, refresh_hash, expires_at)
     return access, refresh
 
@@ -106,7 +105,7 @@ def google_login(db, id_token: str) -> tuple[str, str] | None:
         create_auth_provider(db, user.user_id, provider, sub)
     access, refresh = _create_tokens(user.user_id)
     refresh_hash = _hash_refresh_token(refresh)
-    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     create_session(db, user.user_id, refresh_hash, expires_at)
     return access, refresh
 
@@ -138,7 +137,7 @@ def microsoft_login(db, access_token: str) -> tuple[str, str] | None:
         create_auth_provider(db, user.user_id, provider, provider_user_id)
     access, refresh = _create_tokens(user.user_id)
     refresh_hash = _hash_refresh_token(refresh)
-    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     create_session(db, user.user_id, refresh_hash, expires_at)
     return access, refresh
 
@@ -170,7 +169,7 @@ def linkedin_login(db, access_token: str) -> tuple[str, str] | None:
         create_auth_provider(db, user.user_id, provider, sub)
     access, refresh = _create_tokens(user.user_id)
     refresh_hash = _hash_refresh_token(refresh)
-    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     create_session(db, user.user_id, refresh_hash, expires_at)
     return access, refresh
 
@@ -183,7 +182,7 @@ def refresh_tokens(db, refresh_token: str) -> tuple[str, str] | None:
         return None
     access, new_refresh = _create_tokens(session.user_id)
     new_hash = _hash_refresh_token(new_refresh)
-    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    expires_at = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     delete_session(db, session.session_id)
     create_session(db, session.user_id, new_hash, expires_at)
     return access, new_refresh

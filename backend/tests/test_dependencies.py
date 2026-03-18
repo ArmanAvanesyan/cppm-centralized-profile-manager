@@ -1,12 +1,12 @@
 """Tests for app.core.dependencies."""
 import uuid
+from datetime import UTC
 
 import pytest
-from fastapi import HTTPException
-from fastapi.security import HTTPAuthorizationCredentials
-
 from app.core.dependencies import get_current_user, get_current_user_id
 from app.database.models import User
+from fastapi import HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 
 
 def test_get_current_user_id_no_credentials():
@@ -28,11 +28,12 @@ def test_get_current_user_id_invalid_token():
 
 def test_get_current_user_id_token_without_sub():
     """Token without 'sub' claim raises 401."""
+    from datetime import datetime, timedelta
+
     from app.core.config import settings
-    from datetime import datetime, timedelta, timezone
     from jose import jwt
 
-    payload = {"exp": datetime.now(timezone.utc) + timedelta(minutes=5)}
+    payload = {"exp": datetime.now(UTC) + timedelta(minutes=5)}
     token = jwt.encode(
         payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM
     )

@@ -1,3 +1,4 @@
+import contextlib
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -27,7 +28,7 @@ def connect(
     try:
         auth_url = get_connect_url(db, provider, current_user.user_id)
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     return schema.ConnectResponse(auth_url=auth_url)
 
 
@@ -47,10 +48,8 @@ def callback(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing code")
     user_id: uuid.UUID | None = None
     if state:
-        try:
+        with contextlib.suppress(ValueError, TypeError):
             user_id = uuid.UUID(state)
-        except (ValueError, TypeError):
-            pass
     ok = handle_callback(db, provider, code, state, user_id)
     if not ok:
         raise HTTPException(

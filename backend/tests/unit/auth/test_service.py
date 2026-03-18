@@ -1,4 +1,5 @@
 """Unit tests for app.modules.auth.service."""
+from datetime import UTC
 from unittest.mock import Mock, patch
 
 from app.modules.auth.repository import create_user
@@ -16,10 +17,10 @@ from app.modules.auth.service import (
 
 def test_email_signup(db_session):
     email_signup(db_session, "signup@example.com")
-    from app.modules.auth.repository import get_valid_otp
-    from app.core.config import settings
     import hashlib
-    otp_hash = hashlib.sha256(("000000" + settings.OTP_SECRET).encode()).hexdigest()
+
+    from app.core.config import settings
+    hashlib.sha256(("000000" + settings.OTP_SECRET).encode()).hexdigest()
     # We don't know the OTP (random), so just check that an OTP row exists for the email
     from app.database.models import EmailOtp
     row = db_session.query(EmailOtp).filter(EmailOtp.email == "signup@example.com").first()
@@ -28,13 +29,14 @@ def test_email_signup(db_session):
 
 
 def test_email_verify_success_new_user(db_session):
-    from app.core.config import settings
     import hashlib
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
+
+    from app.core.config import settings
     from app.modules.auth.repository import create_email_otp
     otp = "123456"
     otp_hash = hashlib.sha256((otp + settings.OTP_SECRET).encode()).hexdigest()
-    expires = datetime.now(timezone.utc) + timedelta(minutes=10)
+    expires = datetime.now(UTC) + timedelta(minutes=10)
     create_email_otp(db_session, "verify_new@example.com", otp_hash, expires)
     result = email_verify(db_session, "verify_new@example.com", otp)
     assert result is not None
@@ -49,28 +51,30 @@ def test_email_verify_invalid_otp(db_session):
 
 
 def test_email_verify_existing_user(db_session):
-    from app.modules.auth.repository import create_user, create_email_otp
-    from app.core.config import settings
     import hashlib
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
+
+    from app.core.config import settings
+    from app.modules.auth.repository import create_email_otp, create_user
     create_user(db_session, "existing_verify@example.com")
     otp = "654321"
     otp_hash = hashlib.sha256((otp + settings.OTP_SECRET).encode()).hexdigest()
-    expires = datetime.now(timezone.utc) + timedelta(minutes=10)
+    expires = datetime.now(UTC) + timedelta(minutes=10)
     create_email_otp(db_session, "existing_verify@example.com", otp_hash, expires)
     result = email_verify(db_session, "existing_verify@example.com", otp)
     assert result is not None
 
 
 def test_refresh_tokens_success(db_session):
-    from app.modules.auth.repository import create_user, create_session
-    from app.modules.auth.service import _hash_refresh_token
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
+
     from app.core.config import settings
+    from app.modules.auth.repository import create_session, create_user
+    from app.modules.auth.service import _hash_refresh_token
     user = create_user(db_session, "refresh@example.com")
     refresh_token = "my_refresh_token_value"
     refresh_hash = _hash_refresh_token(refresh_token)
-    expires = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    expires = datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     create_session(db_session, user.user_id, refresh_hash, expires)
     result = refresh_tokens(db_session, refresh_token)
     assert result is not None
@@ -84,14 +88,14 @@ def test_refresh_tokens_invalid(db_session):
 
 
 def test_logout_found(db_session):
-    from app.modules.auth.repository import create_user, create_session
+    from datetime import datetime, timedelta
+
+    from app.modules.auth.repository import create_session, create_user
     from app.modules.auth.service import _hash_refresh_token
-    from datetime import datetime, timedelta, timezone
-    from app.core.config import settings
     user = create_user(db_session, "logout@example.com")
     refresh_token = "logout_token"
     refresh_hash = _hash_refresh_token(refresh_token)
-    expires = datetime.now(timezone.utc) + timedelta(days=7)
+    expires = datetime.now(UTC) + timedelta(days=7)
     create_session(db_session, user.user_id, refresh_hash, expires)
     assert logout(db_session, refresh_token) is True
     assert logout(db_session, refresh_token) is False

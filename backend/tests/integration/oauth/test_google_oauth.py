@@ -1,8 +1,6 @@
 """Integration tests for Google OAuth (HTTP mocked)."""
 from unittest.mock import patch
 
-import pytest
-
 from app.integrations.oauth.google_oauth import GoogleOAuthClient
 
 

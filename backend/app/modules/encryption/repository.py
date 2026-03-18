@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from app.database.models import EncryptionKey, EncryptedToken
+from app.database.models import EncryptionKey
 
 
 def get_latest_key(db: Session, user_id: uuid.UUID) -> EncryptionKey | None:

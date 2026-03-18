@@ -1,6 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi import status
-from fastapi import UploadFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, get_db
@@ -30,8 +28,8 @@ def extract_resume(
     from uuid import UUID
     try:
         rid = UUID(resume_id)
-    except ValueError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid resume_id")
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid resume_id") from e
     job_id = start_extract(db, rid, current_user.user_id)
     if not job_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resume not found")
@@ -47,8 +45,8 @@ def parse_resume(
     from uuid import UUID
     try:
         rid = UUID(resume_id)
-    except ValueError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid resume_id")
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid resume_id") from e
     job_id = start_parse(db, rid, current_user.user_id)
     if not job_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resume not found")

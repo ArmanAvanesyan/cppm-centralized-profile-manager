@@ -1,6 +1,7 @@
 """Google Drive OAuth + Drive API: auth URL, callback (exchange via oauth layer, create CPPM folder + profile.json)."""
+import contextlib
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import httpx
 from sqlalchemy.orm import Session
@@ -25,7 +26,7 @@ def _storage_redirect_uri() -> str:
 
 
 class GoogleDriveClient(BaseStorageClient):
-    def get_auth_url(self, db: Session, user_id: uuid.UUID) -> str:
+    def get_auth_url(self, _db: Session, user_id: uuid.UUID) -> str:
         """Build Google OAuth2 authorization URL via oauth layer. state carries user_id for callback."""
         return get_oauth_client("google").get_authorization_url(
             redirect_uri=_storage_redirect_uri(),
@@ -42,10 +43,8 @@ class GoogleDriveClient(BaseStorageClient):
     ) -> bool:
         """Exchange code via oauth layer, upsert UserCloudAccount, create CPPM folder and profile.json via Drive API."""
         if state and not user_id:
-            try:
+            with contextlib.suppress(ValueError):
                 user_id = uuid.UUID(state)
-            except ValueError:
-                pass
         if not user_id:
             return False
 
@@ -137,7 +136,7 @@ class GoogleDriveClient(BaseStorageClient):
 
 def get_valid_access_token(db: Session, account: UserCloudAccount) -> str | None:
     """Return a valid access token, refreshing via oauth layer and updating DB if expired (with 60s buffer)."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if account.token_expires_at and account.token_expires_at > now + timedelta(seconds=60):
         return account.access_token_encrypted
     if not account.refresh_token_encrypted:

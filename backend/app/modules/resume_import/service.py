@@ -3,15 +3,12 @@ import uuid
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
-from app.modules.resume_import.parser import extract_text_from_file, parse_resume_text
 from app.modules.resume_import.repository import (
     create_extraction,
     create_parsing_result,
     create_resume_upload,
     create_storage_file,
     get_resume_by_id,
-    update_extraction,
-    update_parsing_result,
 )
 
 

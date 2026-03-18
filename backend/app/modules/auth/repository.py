@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
@@ -69,7 +69,7 @@ def create_email_otp(
 
 
 def get_valid_otp(db: Session, email: str, otp_hash: str) -> EmailOtp | None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return (
         db.query(EmailOtp)
         .filter(
@@ -117,7 +117,7 @@ def get_session_by_refresh_hash(
         db.query(SessionModel)
         .filter(
             SessionModel.refresh_token_hash == refresh_token_hash,
-            SessionModel.expires_at > datetime.now(timezone.utc),
+            SessionModel.expires_at > datetime.now(UTC),
         )
         .first()
     )

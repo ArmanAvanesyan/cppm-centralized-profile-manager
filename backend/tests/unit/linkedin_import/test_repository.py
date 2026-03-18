@@ -5,7 +5,6 @@ from app.modules.auth.repository import create_user
 from app.modules.linkedin_import.repository import (
     create_linkedin_import,
     create_parsed_data,
-    create_storage_file,
     get_import_by_id,
 )
 

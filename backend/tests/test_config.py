@@ -1,7 +1,5 @@
 """Tests for app.core.config."""
-import os
 
-import pytest
 
 from app.core.config import Settings
 

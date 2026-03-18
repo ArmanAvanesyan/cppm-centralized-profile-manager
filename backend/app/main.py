@@ -3,10 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import app.modules.auth as auth
 import app.modules.cloud_storage as cloud_storage
-import app.modules.resume_import as resume_import
+import app.modules.encryption as encryption
 import app.modules.linkedin_import as linkedin_import
 import app.modules.profile as profile
-import app.modules.encryption as encryption
+import app.modules.resume_import as resume_import
 
 app = FastAPI(
     title="CPPM API",

@@ -2,7 +2,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
 
 
 @dataclass
@@ -36,6 +35,6 @@ class BaseOAuthClient(ABC):
         """Exchange authorization code for access (and optionally refresh) tokens."""
         ...
 
-    def refresh_access_token(self, refresh_token: str) -> OAuthTokenResult | None:
+    def refresh_access_token(self, _refresh_token: str) -> OAuthTokenResult | None:
         """Refresh access token using refresh_token. Override if provider supports it."""
         return None

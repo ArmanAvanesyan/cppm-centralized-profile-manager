@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.modules.encryption.repository import create_encryption_key, get_latest_key
 
 
-def init_encryption(db: Session, user_id: uuid.UUID, password: str) -> bool:
+def init_encryption(db: Session, user_id: uuid.UUID, _password: str) -> bool:
     """Derive key from password, store encrypted. Stub: store placeholder."""
     # TODO: use cryptography to derive key from password, encrypt with master key, store
     encrypted_key = "stub_encrypted_key"

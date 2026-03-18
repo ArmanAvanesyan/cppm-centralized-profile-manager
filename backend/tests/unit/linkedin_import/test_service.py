@@ -1,11 +1,10 @@
 """Unit tests for app.modules.linkedin_import.service."""
 from io import BytesIO
 
-from fastapi import UploadFile
-
 from app.modules.auth.repository import create_user
 from app.modules.linkedin_import.repository import create_linkedin_import
 from app.modules.linkedin_import.service import start_parse, upload_import
+from fastapi import UploadFile
 
 
 def test_upload_import(db_session):
@@ -24,7 +23,6 @@ def test_start_parse(db_session):
 
 
 def test_start_parse_wrong_user(db_session):
-    import uuid
     user1 = create_user(db_session, "li_u1@example.com")
     user2 = create_user(db_session, "li_u2@example.com")
     imp = create_linkedin_import(db_session, user1.user_id)

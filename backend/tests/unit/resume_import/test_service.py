@@ -1,12 +1,10 @@
 """Unit tests for app.modules.resume_import.service."""
 from io import BytesIO
-from unittest.mock import Mock
-
-from fastapi import UploadFile
 
 from app.modules.auth.repository import create_user
 from app.modules.resume_import.repository import create_resume_upload
 from app.modules.resume_import.service import start_extract, start_parse, upload_resume
+from fastapi import UploadFile
 
 
 def test_upload_resume(db_session):

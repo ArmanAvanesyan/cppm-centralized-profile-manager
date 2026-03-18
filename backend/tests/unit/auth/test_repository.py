@@ -1,12 +1,7 @@
 """Unit tests for app.modules.auth.repository."""
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
-import pytest
-from sqlalchemy.orm import Session
-
-from app.database.models import AuthProvider, EmailOtp, User
-from app.database.models.auth import Session as SessionModel
 from app.modules.auth.repository import (
     create_auth_provider,
     create_email_otp,
@@ -17,10 +12,11 @@ from app.modules.auth.repository import (
     get_session_by_refresh_hash,
     get_user_by_email,
     get_user_by_id,
-    list_provider_names_by_user_id,
     get_valid_otp,
+    list_provider_names_by_user_id,
     mark_otp_used,
 )
+from sqlalchemy.orm import Session
 
 
 def test_create_user(db_session: Session):
@@ -74,7 +70,7 @@ def test_list_provider_names_by_user_id(db_session: Session):
 
 
 def test_create_email_otp(db_session: Session):
-    expires = datetime.now(timezone.utc) + timedelta(minutes=10)
+    expires = datetime.now(UTC) + timedelta(minutes=10)
     row = create_email_otp(db_session, "otp@example.com", "hash123", expires)
     assert row.otp_id is not None
     assert row.email == "otp@example.com"
@@ -83,7 +79,7 @@ def test_create_email_otp(db_session: Session):
 
 
 def test_get_valid_otp(db_session: Session):
-    expires = datetime.now(timezone.utc) + timedelta(minutes=10)
+    expires = datetime.now(UTC) + timedelta(minutes=10)
     row = create_email_otp(db_session, "valid@example.com", "h", expires)
     found = get_valid_otp(db_session, "valid@example.com", "h")
     assert found is not None
@@ -92,13 +88,13 @@ def test_get_valid_otp(db_session: Session):
 
 
 def test_get_valid_otp_expired(db_session: Session):
-    expired = datetime.now(timezone.utc) - timedelta(minutes=1)
+    expired = datetime.now(UTC) - timedelta(minutes=1)
     create_email_otp(db_session, "exp@example.com", "h", expired)
     assert get_valid_otp(db_session, "exp@example.com", "h") is None
 
 
 def test_mark_otp_used(db_session: Session):
-    expires = datetime.now(timezone.utc) + timedelta(minutes=10)
+    expires = datetime.now(UTC) + timedelta(minutes=10)
     row = create_email_otp(db_session, "used@example.com", "h", expires)
     mark_otp_used(db_session, row.otp_id)
     assert get_valid_otp(db_session, "used@example.com", "h") is None
@@ -106,7 +102,7 @@ def test_mark_otp_used(db_session: Session):
 
 def test_create_session(db_session: Session):
     user = create_user(db_session, "session@example.com")
-    expires = datetime.now(timezone.utc) + timedelta(days=7)
+    expires = datetime.now(UTC) + timedelta(days=7)
     row = create_session(db_session, user.user_id, "refresh_hash_abc", expires)
     assert row.session_id is not None
     assert row.user_id == user.user_id
@@ -115,7 +111,7 @@ def test_create_session(db_session: Session):
 
 def test_get_session_by_refresh_hash(db_session: Session):
     user = create_user(db_session, "sess2@example.com")
-    expires = datetime.now(timezone.utc) + timedelta(days=7)
+    expires = datetime.now(UTC) + timedelta(days=7)
     create_session(db_session, user.user_id, "unique_hash", expires)
     session = get_session_by_refresh_hash(db_session, "unique_hash")
     assert session is not None
@@ -125,7 +121,7 @@ def test_get_session_by_refresh_hash(db_session: Session):
 
 def test_delete_session(db_session: Session):
     user = create_user(db_session, "del@example.com")
-    expires = datetime.now(timezone.utc) + timedelta(days=7)
+    expires = datetime.now(UTC) + timedelta(days=7)
     row = create_session(db_session, user.user_id, "to_delete_hash", expires)
     delete_session(db_session, row.session_id)
     assert get_session_by_refresh_hash(db_session, "to_delete_hash") is None
