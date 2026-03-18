@@ -1,4 +1,5 @@
 """Unit tests for app.modules.cloud_storage.repository."""
+
 from datetime import UTC, datetime
 
 from app.modules.auth.repository import create_user
@@ -40,13 +41,12 @@ def test_get_user_cloud_account_by_user_and_provider(db_session: Session):
     user = create_user(db_session, "lookup@example.com")
     prov = get_cloud_provider_by_name(db_session, "dropbox")
     create_user_cloud_account(db_session, user.user_id, prov.provider_id)
-    found = get_user_cloud_account_by_user_and_provider(
-        db_session, user.user_id, "dropbox"
-    )
+    found = get_user_cloud_account_by_user_and_provider(db_session, user.user_id, "dropbox")
     assert found is not None
-    assert get_user_cloud_account_by_user_and_provider(
-        db_session, user.user_id, "google_drive"
-    ) is None
+    assert (
+        get_user_cloud_account_by_user_and_provider(db_session, user.user_id, "google_drive")
+        is None
+    )
 
 
 def test_get_storage_folder_by_account(db_session: Session):
@@ -66,9 +66,7 @@ def test_get_or_create_storage_folder(db_session: Session):
     assert folder.folder_id is not None
     assert folder.account_id == account.account_id
     assert folder.provider_folder_id == "provider_folder_1"
-    folder2 = get_or_create_storage_folder(
-        db_session, account.account_id, "updated_id", "/CPPM"
-    )
+    folder2 = get_or_create_storage_folder(db_session, account.account_id, "updated_id", "/CPPM")
     assert folder2.folder_id == folder.folder_id
     assert folder2.provider_folder_id == "updated_id"
 

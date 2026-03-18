@@ -1,4 +1,5 @@
 """Integration tests for Google Drive cloud storage (HTTP mocked)."""
+
 from unittest.mock import Mock, patch
 
 from app.modules.auth.repository import create_user

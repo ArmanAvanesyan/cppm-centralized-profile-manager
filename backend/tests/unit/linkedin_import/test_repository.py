@@ -1,4 +1,5 @@
 """Unit tests for app.modules.linkedin_import.repository."""
+
 import uuid
 
 from app.modules.auth.repository import create_user
@@ -11,7 +12,9 @@ from app.modules.linkedin_import.repository import (
 
 def test_create_linkedin_import(db_session):
     user = create_user(db_session, "li_imp@example.com")
-    row = create_linkedin_import(db_session, user.user_id, import_type="pdf", import_status="uploaded")
+    row = create_linkedin_import(
+        db_session, user.user_id, import_type="pdf", import_status="uploaded"
+    )
     assert row.import_id is not None
     assert row.user_id == user.user_id
     assert row.import_status == "uploaded"

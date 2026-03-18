@@ -71,22 +71,19 @@ def create_parsing_result(
 
 def get_extraction_by_resume(db: Session, resume_id: uuid.UUID) -> ResumeTextExtraction | None:
     return (
-        db.query(ResumeTextExtraction)
-        .filter(ResumeTextExtraction.resume_id == resume_id)
-        .first()
+        db.query(ResumeTextExtraction).filter(ResumeTextExtraction.resume_id == resume_id).first()
     )
 
 
 def get_parsing_result_by_resume(db: Session, resume_id: uuid.UUID) -> ResumeParsingResult | None:
-    return (
-        db.query(ResumeParsingResult)
-        .filter(ResumeParsingResult.resume_id == resume_id)
-        .first()
-    )
+    return db.query(ResumeParsingResult).filter(ResumeParsingResult.resume_id == resume_id).first()
 
 
 def update_extraction(
-    db: Session, extraction_id: uuid.UUID, extracted_text: str | None = None, status: str | None = None
+    db: Session,
+    extraction_id: uuid.UUID,
+    extracted_text: str | None = None,
+    status: str | None = None,
 ) -> None:
     row = db.get(ResumeTextExtraction, extraction_id)
     if row:

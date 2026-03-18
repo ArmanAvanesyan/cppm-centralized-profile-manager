@@ -21,9 +21,7 @@ class ResumeUpload(Base):
     )
     file_format: Mapped[str | None] = mapped_column(String(20))
     upload_source: Mapped[str | None] = mapped_column(String(50))
-    uploaded_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    uploaded_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")
 
 
 class ResumeTextExtraction(Base):
@@ -39,9 +37,7 @@ class ResumeTextExtraction(Base):
     )
     extracted_text: Mapped[str | None] = mapped_column(Text)
     extraction_status: Mapped[str | None] = mapped_column(String(50))
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")
 
 
 class ResumeParsingResult(Base):
@@ -58,6 +54,4 @@ class ResumeParsingResult(Base):
     parsed_experience: Mapped[dict | list | None] = mapped_column(JSONB)
     parsed_skills: Mapped[dict | list | None] = mapped_column(JSONB)
     parsing_status: Mapped[str | None] = mapped_column(String(50))
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")

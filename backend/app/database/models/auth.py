@@ -18,9 +18,7 @@ class AuthProvider(Base):
     )
     provider: Mapped[str] = mapped_column(String(50), nullable=False)
     provider_user_id: Mapped[str | None] = mapped_column(String(255))
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")
 
     __table_args__ = (
         UniqueConstraint("provider", "provider_user_id", name="uq_auth_provider_provider_user"),
@@ -37,9 +35,7 @@ class EmailOtp(Base):
     otp_hash: Mapped[str] = mapped_column(Text, nullable=False)
     expires_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
     used: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")
 
 
 class Session(Base):
@@ -55,6 +51,4 @@ class Session(Base):
     ip_address: Mapped[str | None] = mapped_column(String(45))
     user_agent: Mapped[str | None] = mapped_column(Text)
     expires_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")

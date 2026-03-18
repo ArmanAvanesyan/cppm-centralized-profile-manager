@@ -18,12 +18,15 @@ def get_connect_url(db: Session, provider: str, user_id: uuid.UUID) -> str:
     provider = provider.lower()
     if provider == "google":
         from app.integrations.cloud_storage.google_drive import get_auth_url
+
         return get_auth_url(db, user_id)
     if provider == "dropbox":
         from app.integrations.cloud_storage.dropbox import get_auth_url
+
         return get_auth_url(db, user_id)
     if provider == "onedrive":
         from app.integrations.cloud_storage.onedrive import get_auth_url
+
         return get_auth_url(db, user_id)
     raise ValueError(f"Unknown provider: {provider}")
 
@@ -35,12 +38,15 @@ def handle_callback(
     provider = provider.lower()
     if provider == "google":
         from app.integrations.cloud_storage.google_drive import handle_callback as do_callback
+
         return do_callback(db, code, state, user_id)
     if provider == "dropbox":
         from app.integrations.cloud_storage.dropbox import handle_callback as do_callback
+
         return do_callback(db, code, state, user_id)
     if provider == "onedrive":
         from app.integrations.cloud_storage.onedrive import handle_callback as do_callback
+
         return do_callback(db, code, state, user_id)
     return False
 
@@ -60,9 +66,7 @@ def list_accounts(db: Session, user_id: uuid.UUID) -> list[dict]:
     ]
 
 
-def list_files_in_cppm_folder(
-    db: Session, user_id: uuid.UUID, provider: str
-) -> list[dict]:
+def list_files_in_cppm_folder(db: Session, user_id: uuid.UUID, provider: str) -> list[dict]:
     """List files in the user's CPPM folder for the given provider. Returns list of file metadata dicts."""
     p = provider.lower()
     db_name = _PROVIDER_TO_DB_NAME.get(p)
@@ -76,12 +80,15 @@ def list_files_in_cppm_folder(
         return []
     if p == "google":
         from app.integrations.cloud_storage.google_drive import list_folder_files
+
         return list_folder_files(db, account, folder.provider_folder_id or "")
     if p == "onedrive":
         from app.integrations.cloud_storage.onedrive import list_folder_files
+
         return list_folder_files(db, account, folder.folder_path or CPPM_FOLDER_NAME)
     if p == "dropbox":
         from app.integrations.cloud_storage.dropbox import list_folder_files
+
         return list_folder_files(db, account, folder.folder_path or f"/{CPPM_FOLDER_NAME}")
     return []
 
@@ -107,16 +114,19 @@ def upload_file_to_cppm(
         return None
     if p == "google":
         from app.integrations.cloud_storage.google_drive import upload_file_content
+
         return upload_file_content(
             db, account, folder.provider_folder_id or "", file_name, content, mime_type
         )
     if p == "onedrive":
         from app.integrations.cloud_storage.onedrive import upload_file_content
+
         return upload_file_content(
             db, account, folder.folder_path or CPPM_FOLDER_NAME, file_name, content
         )
     if p == "dropbox":
         from app.integrations.cloud_storage.dropbox import upload_file_content
+
         return upload_file_content(
             db, account, folder.folder_path or f"/{CPPM_FOLDER_NAME}", file_name, content
         )
@@ -136,11 +146,14 @@ def download_file_from_cppm(
         return None
     if p == "google":
         from app.integrations.cloud_storage.google_drive import download_file_content
+
         return download_file_content(db, account, file_id_or_path)
     if p == "onedrive":
         from app.integrations.cloud_storage.onedrive import download_file_content
+
         return download_file_content(db, account, file_id_or_path)
     if p == "dropbox":
         from app.integrations.cloud_storage.dropbox import download_file_content
+
         return download_file_content(db, account, file_id_or_path)
     return None

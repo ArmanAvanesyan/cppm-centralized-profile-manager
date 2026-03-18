@@ -1,4 +1,5 @@
 """Dropbox OAuth2: authorization URL and code exchange only."""
+
 from urllib.parse import urlencode
 
 import httpx

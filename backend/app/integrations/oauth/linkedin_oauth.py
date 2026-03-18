@@ -1,4 +1,5 @@
 """LinkedIn OAuth2 (OpenID Connect): authorization URL and code exchange only."""
+
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlencode
 

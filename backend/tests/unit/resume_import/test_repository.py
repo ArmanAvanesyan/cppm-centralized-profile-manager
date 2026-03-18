@@ -1,4 +1,5 @@
 """Unit tests for app.modules.resume_import.repository."""
+
 import uuid
 
 from app.modules.auth.repository import create_user
@@ -34,7 +35,9 @@ def test_get_resume_by_id(db_session):
 
 def test_create_storage_file(db_session):
     user = create_user(db_session, "storage_file@example.com")
-    row = create_storage_file(db_session, user.user_id, None, "resume.pdf", file_type="pdf", file_size=100)
+    row = create_storage_file(
+        db_session, user.user_id, None, "resume.pdf", file_type="pdf", file_size=100
+    )
     assert row.file_id is not None
     assert row.file_name == "resume.pdf"
 
@@ -86,6 +89,8 @@ def test_update_parsing_result(db_session):
     user = create_user(db_session, "upd_parse@example.com")
     resume = create_resume_upload(db_session, user.user_id)
     pr = create_parsing_result(db_session, resume.resume_id)
-    update_parsing_result(db_session, pr.parsing_id, parsed_experience=[], parsed_skills=[], status="completed")
+    update_parsing_result(
+        db_session, pr.parsing_id, parsed_experience=[], parsed_skills=[], status="completed"
+    )
     found = get_parsing_result_by_resume(db_session, resume.resume_id)
     assert found.parsing_status == "completed"

@@ -50,15 +50,9 @@ def get_cloud_provider_by_name(db: Session, name: str) -> CloudProvider | None:
     return db.query(CloudProvider).filter(CloudProvider.name == name).first()
 
 
-def get_storage_folder_by_account(
-    db: Session, account_id: uuid.UUID
-) -> StorageFolder | None:
+def get_storage_folder_by_account(db: Session, account_id: uuid.UUID) -> StorageFolder | None:
     """Return the StorageFolder for this account, or None."""
-    return (
-        db.query(StorageFolder)
-        .filter(StorageFolder.account_id == account_id)
-        .first()
-    )
+    return db.query(StorageFolder).filter(StorageFolder.account_id == account_id).first()
 
 
 def get_or_create_storage_folder(
@@ -68,11 +62,7 @@ def get_or_create_storage_folder(
     folder_path: str,
 ) -> StorageFolder:
     """Return existing StorageFolder for this account or create one."""
-    existing = (
-        db.query(StorageFolder)
-        .filter(StorageFolder.account_id == account_id)
-        .first()
-    )
+    existing = db.query(StorageFolder).filter(StorageFolder.account_id == account_id).first()
     if existing:
         existing.provider_folder_id = provider_folder_id
         existing.folder_path = folder_path
@@ -91,11 +81,7 @@ def get_or_create_storage_folder(
 
 
 def list_accounts_by_user(db: Session, user_id: uuid.UUID) -> list[UserCloudAccount]:
-    return (
-        db.query(UserCloudAccount)
-        .filter(UserCloudAccount.user_id == user_id)
-        .all()
-    )
+    return db.query(UserCloudAccount).filter(UserCloudAccount.user_id == user_id).all()
 
 
 def create_user_cloud_account(

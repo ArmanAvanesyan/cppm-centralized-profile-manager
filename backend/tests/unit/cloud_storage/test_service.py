@@ -1,4 +1,5 @@
 """Unit tests for app.modules.cloud_storage.service."""
+
 from unittest.mock import Mock, patch
 
 import pytest

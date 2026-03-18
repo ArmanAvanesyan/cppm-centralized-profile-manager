@@ -1,4 +1,5 @@
 """Google Drive OAuth + Drive API: auth URL, callback (exchange via oauth layer, create CPPM folder + profile.json)."""
+
 import contextlib
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -49,7 +50,9 @@ class GoogleDriveClient(BaseStorageClient):
             return False
 
         redirect_uri = _storage_redirect_uri()
-        result = get_oauth_client("google").exchange_code_for_tokens(code=code, redirect_uri=redirect_uri)
+        result = get_oauth_client("google").exchange_code_for_tokens(
+            code=code, redirect_uri=redirect_uri
+        )
         if not result:
             return False
 
@@ -67,7 +70,9 @@ class GoogleDriveClient(BaseStorageClient):
                 db,
                 existing.account_id,
                 access_token_encrypted=access,
-                refresh_token_encrypted=refresh if refresh is not None else existing.refresh_token_encrypted,
+                refresh_token_encrypted=refresh
+                if refresh is not None
+                else existing.refresh_token_encrypted,
                 token_expires_at=token_expires_at,
             )
             account_id = existing.account_id
@@ -119,7 +124,10 @@ class GoogleDriveClient(BaseStorageClient):
                 httpx.patch(
                     f"https://www.googleapis.com/upload/drive/v3/files/{file_id}",
                     params={"uploadType": "media"},
-                    headers={"Authorization": f"Bearer {access}", "Content-Type": "application/json"},
+                    headers={
+                        "Authorization": f"Bearer {access}",
+                        "Content-Type": "application/json",
+                    },
                     content=b"{}",
                 )
         except Exception:
@@ -153,9 +161,7 @@ def get_valid_access_token(db: Session, account: UserCloudAccount) -> str | None
     return result.access_token
 
 
-def list_folder_files(
-    db: Session, account: UserCloudAccount, folder_id: str
-) -> list[dict]:
+def list_folder_files(db: Session, account: UserCloudAccount, folder_id: str) -> list[dict]:
     """List files in a Drive folder. Returns list of dicts with id, name, mimeType."""
     access = get_valid_access_token(db, account)
     if not access:
@@ -206,9 +212,7 @@ def upload_file_content(
         return None
 
 
-def download_file_content(
-    db: Session, account: UserCloudAccount, file_id: str
-) -> bytes | None:
+def download_file_content(db: Session, account: UserCloudAccount, file_id: str) -> bytes | None:
     """Download file content from Drive by file id."""
     access = get_valid_access_token(db, account)
     if not access:
@@ -230,7 +234,5 @@ def get_auth_url(db: Session, user_id: uuid.UUID) -> str:
     return GoogleDriveClient().get_auth_url(db, user_id)
 
 
-def handle_callback(
-    db: Session, code: str, state: str | None, user_id: uuid.UUID | None
-) -> bool:
+def handle_callback(db: Session, code: str, state: str | None, user_id: uuid.UUID | None) -> bool:
     return GoogleDriveClient().handle_callback(db, code, state, user_id)

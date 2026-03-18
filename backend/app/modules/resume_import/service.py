@@ -12,19 +12,26 @@ from app.modules.resume_import.repository import (
 )
 
 
-def upload_resume(
-    db: Session, user_id: uuid.UUID, file: UploadFile
-) -> tuple[uuid.UUID, str]:
+def upload_resume(db: Session, user_id: uuid.UUID, file: UploadFile) -> tuple[uuid.UUID, str]:
     """Store file metadata and create resume_upload. Returns (resume_id, status)."""
     # For MVP: don't upload to cloud; create storage_file with name/size only
     content = file.file.read()
     file_size = len(content)
     file_type = file.filename.split(".")[-1] if file.filename else None
     storage_file = create_storage_file(
-        db, user_id, account_id=None, file_name=file.filename or "resume", file_type=file_type, file_size=file_size
+        db,
+        user_id,
+        account_id=None,
+        file_name=file.filename or "resume",
+        file_type=file_type,
+        file_size=file_size,
     )
     resume = create_resume_upload(
-        db, user_id=user_id, file_id=storage_file.file_id, file_format=file_type, upload_source="api"
+        db,
+        user_id=user_id,
+        file_id=storage_file.file_id,
+        file_format=file_type,
+        upload_source="api",
     )
     return resume.resume_id, "uploaded"
 

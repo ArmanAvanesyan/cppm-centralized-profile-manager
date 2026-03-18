@@ -1,4 +1,5 @@
 """Shared pytest fixtures: test DB, TestClient, auth overrides."""
+
 import os
 import uuid
 from collections.abc import Generator
@@ -33,9 +34,11 @@ def _create_tables() -> None:
     Base.metadata.create_all(bind=_TEST_ENGINE)
     # Seed cloud_providers so cloud_storage tests can resolve provider names
     with _TEST_ENGINE.connect() as conn:
-        conn.execute(text(
-            "INSERT INTO cloud_providers (name) VALUES ('google_drive'), ('dropbox'), ('onedrive')"
-        ))
+        conn.execute(
+            text(
+                "INSERT INTO cloud_providers (name) VALUES ('google_drive'), ('dropbox'), ('onedrive')"
+            )
+        )
         conn.commit()
 
 
@@ -135,9 +138,8 @@ def client_with_auth(db_session: Session, auth_user_id: uuid.UUID):
         finally:
             pass
 
-
     def override_get_current_user_id() -> uuid.UUID:
-            return auth_user_id
+        return auth_user_id
 
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_current_user_id] = override_get_current_user_id
@@ -147,4 +149,3 @@ def client_with_auth(db_session: Session, auth_user_id: uuid.UUID):
     finally:
         app.dependency_overrides.pop(get_db, None)
         app.dependency_overrides.pop(get_current_user_id, None)
-

@@ -27,6 +27,7 @@ def encryption_rotate(
     ok = rotate_key(db, current_user.user_id)
     if not ok:
         from fastapi import HTTPException
+
         raise HTTPException(status_code=400, detail="Encryption not initialized")
     return {"status": "rotated"}
 

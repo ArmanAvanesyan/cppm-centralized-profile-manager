@@ -39,7 +39,10 @@ def _hash_refresh_token(token: str) -> str:
 
 def _create_tokens(user_id: uuid.UUID) -> tuple[str, str]:
     access = jwt.encode(
-        {"sub": str(user_id), "exp": datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)},
+        {
+            "sub": str(user_id),
+            "exp": datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+        },
         settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM,
     )

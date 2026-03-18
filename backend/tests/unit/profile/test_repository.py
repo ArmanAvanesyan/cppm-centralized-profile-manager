@@ -1,4 +1,5 @@
 """Unit tests for app.modules.profile.repository."""
+
 import uuid
 
 from app.modules.auth.repository import create_user

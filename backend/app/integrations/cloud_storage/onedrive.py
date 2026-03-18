@@ -1,4 +1,5 @@
 """OneDrive OAuth + Microsoft Graph: auth URL, callback (exchange via oauth layer, create CPPM folder + profile.json)."""
+
 import contextlib
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -49,7 +50,9 @@ class OneDriveClient(BaseStorageClient):
             return False
 
         redirect_uri = _storage_redirect_uri()
-        result = get_oauth_client("microsoft").exchange_code_for_tokens(code=code, redirect_uri=redirect_uri)
+        result = get_oauth_client("microsoft").exchange_code_for_tokens(
+            code=code, redirect_uri=redirect_uri
+        )
         if not result:
             return False
 
@@ -67,7 +70,9 @@ class OneDriveClient(BaseStorageClient):
                 db,
                 existing.account_id,
                 access_token_encrypted=access,
-                refresh_token_encrypted=refresh if refresh is not None else existing.refresh_token_encrypted,
+                refresh_token_encrypted=refresh
+                if refresh is not None
+                else existing.refresh_token_encrypted,
                 token_expires_at=token_expires_at,
             )
             account_id = existing.account_id
@@ -134,9 +139,7 @@ def get_valid_access_token(db: Session, account: UserCloudAccount) -> str | None
     return result.access_token
 
 
-def list_folder_files(
-    db: Session, account: UserCloudAccount, folder_path: str
-) -> list[dict]:
+def list_folder_files(db: Session, account: UserCloudAccount, folder_path: str) -> list[dict]:
     """List files in an OneDrive folder by path (e.g. CPPM). Returns list of dicts with id, name."""
     access = get_valid_access_token(db, account)
     if not access:
@@ -171,7 +174,10 @@ def upload_file_content(
     try:
         resp = httpx.put(
             f"https://graph.microsoft.com/v1.0/me/drive/root:/{item_path}:/content",
-            headers={"Authorization": f"Bearer {access}", "Content-Type": "application/octet-stream"},
+            headers={
+                "Authorization": f"Bearer {access}",
+                "Content-Type": "application/octet-stream",
+            },
             content=content,
         )
         resp.raise_for_status()
@@ -180,9 +186,7 @@ def upload_file_content(
         return None
 
 
-def download_file_content(
-    db: Session, account: UserCloudAccount, file_path: str
-) -> bytes | None:
+def download_file_content(db: Session, account: UserCloudAccount, file_path: str) -> bytes | None:
     """Download file content from OneDrive by path (e.g. CPPM/profile.json)."""
     access = get_valid_access_token(db, account)
     if not access:
@@ -208,7 +212,5 @@ def get_auth_url(db: Session, user_id: uuid.UUID) -> str:
     return OneDriveClient().get_auth_url(db, user_id)
 
 
-def handle_callback(
-    db: Session, code: str, state: str | None, user_id: uuid.UUID | None
-) -> bool:
+def handle_callback(db: Session, code: str, state: str | None, user_id: uuid.UUID | None) -> bool:
     return OneDriveClient().handle_callback(db, code, state, user_id)

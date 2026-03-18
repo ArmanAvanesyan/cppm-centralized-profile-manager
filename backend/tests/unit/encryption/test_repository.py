@@ -1,4 +1,5 @@
 """Unit tests for app.modules.encryption.repository."""
+
 from app.modules.auth.repository import create_user
 from app.modules.encryption.repository import create_encryption_key, get_latest_key
 

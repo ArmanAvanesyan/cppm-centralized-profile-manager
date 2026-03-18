@@ -21,9 +21,7 @@ class LinkedInImport(Base):
     )
     import_type: Mapped[str | None] = mapped_column(String(50))
     import_status: Mapped[str | None] = mapped_column(String(50))
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")
 
 
 class LinkedInParsedData(Base):
@@ -40,6 +38,4 @@ class LinkedInParsedData(Base):
     parsed_experience: Mapped[dict | list | None] = mapped_column(JSONB)
     parsed_education: Mapped[dict | list | None] = mapped_column(JSONB)
     parsed_skills: Mapped[dict | list | None] = mapped_column(JSONB)
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")

@@ -1,4 +1,5 @@
 """Unit tests for app.modules.resume_import.service."""
+
 from io import BytesIO
 
 from app.modules.auth.repository import create_user
@@ -39,4 +40,5 @@ def test_start_parse(db_session):
 def test_start_parse_resume_not_found(db_session):
     user = create_user(db_session, "parse_nf@example.com")
     import uuid
+
     assert start_parse(db_session, uuid.uuid4(), user.user_id) is None

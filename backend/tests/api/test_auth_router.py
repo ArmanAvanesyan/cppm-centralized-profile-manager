@@ -1,4 +1,5 @@
 """API tests for auth router."""
+
 import hashlib
 from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
@@ -19,7 +20,9 @@ def test_verify_success(client, db_session):
     otp_hash = hashlib.sha256((otp + settings.OTP_SECRET).encode()).hexdigest()
     expires = datetime.now(UTC) + timedelta(minutes=10)
     create_email_otp(db_session, "verify_ok@example.com", otp_hash, expires)
-    r = client.post("/api/v1/auth/email/verify", json={"email": "verify_ok@example.com", "otp": otp})
+    r = client.post(
+        "/api/v1/auth/email/verify", json={"email": "verify_ok@example.com", "otp": otp}
+    )
     assert r.status_code == 200
     data = r.json()
     assert "access_token" in data
@@ -70,6 +73,7 @@ def test_me(client_with_auth, db_session, auth_user_id):
 def test_refresh_success(client, db_session):
     from app.modules.auth.repository import create_session
     from app.modules.auth.service import _hash_refresh_token
+
     user = create_user(db_session, "refresh_api@example.com")
     refresh_token = "secret_refresh_123"
     h = _hash_refresh_token(refresh_token)
@@ -88,6 +92,7 @@ def test_refresh_invalid(client):
 def test_logout(client, db_session):
     from app.modules.auth.repository import create_session
     from app.modules.auth.service import _hash_refresh_token
+
     user = create_user(db_session, "logout_api@example.com")
     refresh_token = "logout_refresh"
     h = _hash_refresh_token(refresh_token)

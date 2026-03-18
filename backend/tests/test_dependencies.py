@@ -1,4 +1,5 @@
 """Tests for app.core.dependencies."""
+
 import uuid
 from datetime import UTC
 
@@ -34,9 +35,7 @@ def test_get_current_user_id_token_without_sub():
     from jose import jwt
 
     payload = {"exp": datetime.now(UTC) + timedelta(minutes=5)}
-    token = jwt.encode(
-        payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM
-    )
+    token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
     creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
     with pytest.raises(HTTPException) as exc_info:
         get_current_user_id(credentials=creds)

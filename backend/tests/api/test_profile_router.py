@@ -1,4 +1,5 @@
 """API tests for profile router."""
+
 from app.database.models import User
 
 
@@ -28,6 +29,7 @@ def test_profile_put(client_with_auth, db_session, auth_user_id):
 
 def test_profile_merge(client_with_auth, db_session, auth_user_id):
     import uuid
+
     user = User(user_id=auth_user_id, email="profile_merge_api@example.com")
     db_session.add(user)
     db_session.commit()

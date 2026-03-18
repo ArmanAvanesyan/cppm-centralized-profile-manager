@@ -18,9 +18,7 @@ class EncryptionKey(Base):
     )
     encrypted_key: Mapped[str] = mapped_column(Text, nullable=False)
     key_version: Mapped[int] = mapped_column(Integer, default=1)
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")
 
 
 class EncryptedToken(Base):
@@ -34,6 +32,4 @@ class EncryptedToken(Base):
     )
     token_type: Mapped[str | None] = mapped_column(String(50))
     encrypted_value: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")

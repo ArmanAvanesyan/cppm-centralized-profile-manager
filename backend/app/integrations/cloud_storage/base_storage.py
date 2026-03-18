@@ -1,4 +1,5 @@
 """Base interface for cloud storage providers (OAuth + file operations)."""
+
 from abc import ABC, abstractmethod
 from typing import Any
 

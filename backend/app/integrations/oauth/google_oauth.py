@@ -1,4 +1,5 @@
 """Google OAuth2: authorization URL, code exchange, and token refresh only."""
+
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlencode
 

@@ -1,4 +1,5 @@
 """Unit tests for app.modules.linkedin_import.service."""
+
 from io import BytesIO
 
 from app.modules.auth.repository import create_user

@@ -1,4 +1,5 @@
 """Unit tests for app.modules.auth.repository."""
+
 import uuid
 from datetime import UTC, datetime, timedelta
 

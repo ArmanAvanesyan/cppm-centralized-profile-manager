@@ -1,4 +1,5 @@
 """OAuth2 integrations: Google, Microsoft, LinkedIn, Dropbox (auth URL + token exchange only)."""
+
 from app.integrations.oauth.base_oauth import BaseOAuthClient, OAuthTokenResult
 from app.integrations.oauth.constants import (
     PROVIDER_DROPBOX,

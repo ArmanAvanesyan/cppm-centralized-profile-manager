@@ -1,4 +1,5 @@
 """Unit tests for app.modules.linkedin_import.parser."""
+
 from app.modules.linkedin_import.parser import parse_linkedin_file
 
 

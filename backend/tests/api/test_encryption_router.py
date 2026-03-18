@@ -1,4 +1,5 @@
 """API tests for encryption router."""
+
 from app.database.models import User
 
 

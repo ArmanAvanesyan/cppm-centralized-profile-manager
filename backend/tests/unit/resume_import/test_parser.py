@@ -1,4 +1,5 @@
 """Unit tests for app.modules.resume_import.parser."""
+
 from app.modules.resume_import.parser import extract_text_from_file, parse_resume_text
 
 

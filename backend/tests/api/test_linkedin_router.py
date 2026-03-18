@@ -1,4 +1,5 @@
 """API tests for linkedin_import router."""
+
 from io import BytesIO
 
 from app.database.models import User

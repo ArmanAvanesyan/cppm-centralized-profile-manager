@@ -19,6 +19,4 @@ class ProfileMergeOperation(Base):
     source_type: Mapped[str | None] = mapped_column(String(50))
     source_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     merge_status: Mapped[str | None] = mapped_column(String(50))
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), server_default="now()"
-    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default="now()")

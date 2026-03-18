@@ -58,9 +58,7 @@ def list_provider_names_by_user_id(db: Session, user_id: uuid.UUID) -> list[str]
     return [r[0] for r in rows]
 
 
-def create_email_otp(
-    db: Session, email: str, otp_hash: str, expires_at: datetime
-) -> EmailOtp:
+def create_email_otp(db: Session, email: str, otp_hash: str, expires_at: datetime) -> EmailOtp:
     row = EmailOtp(email=email, otp_hash=otp_hash, expires_at=expires_at)
     db.add(row)
     db.commit()
@@ -110,9 +108,7 @@ def create_session(
     return row
 
 
-def get_session_by_refresh_hash(
-    db: Session, refresh_token_hash: str
-) -> SessionModel | None:
+def get_session_by_refresh_hash(db: Session, refresh_token_hash: str) -> SessionModel | None:
     return (
         db.query(SessionModel)
         .filter(

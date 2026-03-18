@@ -21,7 +21,11 @@ def linkedin_import_upload(
     return schema.LinkedInImportResponse(import_id=str(import_id), status=st)
 
 
-@router.post("/import/{import_id}/parse", status_code=status.HTTP_202_ACCEPTED, response_model=schema.JobAcceptedResponse)
+@router.post(
+    "/import/{import_id}/parse",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=schema.JobAcceptedResponse,
+)
 def linkedin_parse(
     import_id: str,
     current_user: User = Depends(get_current_user),
@@ -30,7 +34,9 @@ def linkedin_parse(
     try:
         iid = UUID(import_id)
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid import_id") from e
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Invalid import_id"
+        ) from e
     job_id = start_parse(db, iid, current_user.user_id)
     if not job_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Import not found")
